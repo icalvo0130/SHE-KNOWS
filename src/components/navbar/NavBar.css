@@ -1,0 +1,237 @@
+/* ================================
+   NavBar
+   ================================ */
+
+/* ---- MOBILE: bottom bar ---- */
+.navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: var(--navbar-height-mobile);
+  background-color: var(--blanco);
+  border-top: 1px solid var(--gris-borde);
+  box-shadow: 0px -2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 8px;
+}
+
+/* Nav items */
+.navbar__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: var(--negro);
+  opacity: 0.45;
+  transition: opacity 0.2s ease;
+  flex: 1;
+  padding: 8px 0;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.navbar__item:hover,
+.navbar__item.active {
+  opacity: 1;
+  color: var(--rojo);
+}
+
+.navbar__item svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Center + button */
+.navbar__add {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.navbar__add-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid var(--negro);
+  background-color: var(--blanco);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.navbar__add-btn:hover {
+  background-color: var(--fucsia);
+  border-color: var(--fucsia);
+  color: var(--blanco);
+}
+
+.navbar__add-btn svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* ---- ADD POST POPUP ---- */
+.navbar__popup {
+  position: fixed;
+  bottom: calc(var(--navbar-height-mobile) + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  background: var(--blanco);
+  border-radius: 16px;
+  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.18);
+  padding: 8px 0;
+  min-width: 220px;
+  animation: popupIn 0.18s ease;
+}
+
+@keyframes popupIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.navbar__popup-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--negro);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-body);
+}
+
+.navbar__popup-item:hover {
+  background-color: var(--rosadito);
+  color: var(--rojo);
+}
+
+.navbar__popup-item svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Overlay to close popup */
+.navbar__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+}
+
+/* ---- DESKTOP: left sidebar ---- */
+@media (min-width: 768px) {
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: auto;
+    width: var(--sidebar-width);
+    height: 100vh;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: calc(var(--header-height-desktop) + 32px) 0 32px 0;
+    border-top: none;
+    border-right: 1px solid var(--gris-borde);
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+    background-color: var(--blanco);
+  }
+
+  .navbar__item {
+    flex-direction: row;
+    justify-content: flex-start;
+    width: 100%;
+    padding: 14px 28px;
+    gap: 12px;
+    font-size: 1rem;
+    font-weight: 500;
+    opacity: 1;
+    color: var(--negro);
+    border-radius: 0;
+  }
+
+  .navbar__item:hover,
+  .navbar__item.active {
+    color: var(--rojo);
+    background-color: var(--rosadito);
+    opacity: 1;
+  }
+
+  .navbar__item-label {
+    display: block;
+  }
+
+  .navbar__add {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 14px 28px;
+  }
+
+  .navbar__add-btn {
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    border: none;
+    background: none;
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--negro);
+    padding: 0;
+  }
+
+  .navbar__add-btn:hover {
+    background: none;
+    color: var(--rojo);
+  }
+
+  .navbar__add-btn svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .navbar__popup {
+    bottom: auto;
+    top: auto;
+    left: var(--sidebar-width);
+    transform: none;
+    animation: popupInDesktop 0.18s ease;
+  }
+
+  @keyframes popupInDesktop {
+    from {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}

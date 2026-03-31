@@ -1,0 +1,49 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: var(--header-height-mobile);
+  background-color: var(--rojo);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--sombra);
+}
+
+.header__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header__logo-img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+/* Desktop sidebar takes over nav → header becomes a top bar */
+@media (min-width: 768px) {
+  .header {
+    left: var(--sidebar-width);
+    height: var(--header-height-desktop);
+    justify-content: flex-start;
+    padding: 0 32px;
+  }
+
+  .header__logo-text {
+    display: block;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: var(--crema);
+    letter-spacing: 0.02em;
+  }
+}
+
+/* Hide text on mobile */
+.header__logo-text {
+  display: none;
+}
