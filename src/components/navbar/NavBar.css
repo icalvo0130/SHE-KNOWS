@@ -1,8 +1,3 @@
-/* ================================
-   NavBar
-   ================================ */
-
-/* ---- MOBILE: bottom bar ---- */
 .navbar {
   position: fixed;
   bottom: 0;
@@ -85,7 +80,7 @@
   bottom: calc(var(--navbar-height-mobile) + 12px);
   left: 50%;
   transform: translateX(-50%);
-  z-index: 200;
+  z-index: 160;
   background: var(--blanco);
   border-radius: 16px;
   box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.18);
@@ -137,7 +132,7 @@
 .navbar__overlay {
   position: fixed;
   inset: 0;
-  z-index: 150;
+  z-index: 140;  
 }
 
 /* ---- DESKTOP: left sidebar ---- */

@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { GirlTalkForm } from '../PostForms/GirlTalkForm/GirlTalkForm'
+import { RateGuyForm } from '../PostForms/RateGuyForm/RateGuyForm'
+import '../Modal/Modal.css'
 import './NavBar.css'
 
-/* ---- SVG Icons ---- */
 const HomeIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
     <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z" />
@@ -50,66 +52,106 @@ const ChatIcon = () => (
   </svg>
 )
 
+const FlagIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+    <line x1="4" y1="22" x2="4" y2="15" />
+  </svg>
+)
+
 const StarIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
   </svg>
 )
 
+type ActiveModal = 'girl-talk' | 'rate-guy' | 'review-product' | null
+
 export const NavBar = () => {
   const [popupOpen, setPopupOpen] = useState(false)
+  const [activeModal, setActiveModal] = useState<ActiveModal>(null)
   const location = useLocation()
+  const popupRef = useRef<HTMLDivElement>(null)
+
+  // Close popup when clicking outside of it
+  useEffect(() => {
+    if (!popupOpen) return
+    const handleClickOutside = (e: MouseEvent) => {
+      if (popupRef.current && !popupRef.current.contains(e.target as Node)) {
+        setPopupOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [popupOpen])
 
   const isActive = (path: string) => location.pathname === path
 
-  const togglePopup = () => setPopupOpen((prev) => !prev)
-  const closePopup = () => setPopupOpen(false)
+  const openModal = (type: ActiveModal) => {
+    setPopupOpen(false)
+    setActiveModal(type)
+  }
+
+  const closeModal = () => setActiveModal(null)
+
+  const handleGirlTalkPost = (text: string) => {
+    const addPost = (window as unknown as Record<string, unknown>).__addGirlTalkPost as ((t: string) => void) | undefined
+    if (addPost) addPost(text)
+    closeModal()
+  }
 
   return (
     <>
-      {/* Overlay to close popup when clicking outside */}
-      {popupOpen && <div className="navbar__overlay" onClick={closePopup} />}
-
       <nav className="navbar">
-        {/* Home — Girl Talk */}
         <Link
           to="/girl-talk"
-          className={`navbar__item ${isActive('/girl-talk') ? 'active' : ''}`}
-          onClick={closePopup}
+          className={`navbar__item ${isActive('/girl-talk') || isActive('/') ? 'active' : ''}`}
+          onClick={() => setPopupOpen(false)}
         >
           <HomeIcon />
           <span className="navbar__item-label">Girl Talk</span>
         </Link>
 
-        {/* Men Reviews */}
         <Link
           to="/men-review"
           className={`navbar__item ${isActive('/men-review') ? 'active' : ''}`}
-          onClick={closePopup}
+          onClick={() => setPopupOpen(false)}
         >
           <DevilIcon />
           <span className="navbar__item-label">Men Reviews</span>
         </Link>
 
-        {/* Center: Add post button */}
-        <div className="navbar__add">
-          <button className="navbar__add-btn" onClick={togglePopup} aria-label="Crear post">
+        {/* Center add button — ref wraps button + popup together */}
+        <div className="navbar__add" ref={popupRef}>
+          <button
+            className="navbar__add-btn"
+            onClick={() => setPopupOpen((prev) => !prev)}
+            aria-label="Crear post"
+          >
             <PlusIcon />
             <span className="navbar__item-label">Speak Up</span>
           </button>
 
-          {/* Popup menu */}
           {popupOpen && (
             <div className="navbar__popup">
-              <button className="navbar__popup-item" onClick={closePopup}>
+              <button
+                className="navbar__popup-item"
+                onMouseDown={(e) => { e.stopPropagation(); openModal('girl-talk') }}
+              >
                 <ChatIcon />
                 Girl Talk
               </button>
-              <button className="navbar__popup-item" onClick={closePopup}>
-                <DevilIcon />
+              <button
+                className="navbar__popup-item"
+                onMouseDown={(e) => { e.stopPropagation(); openModal('rate-guy') }}
+              >
+                <FlagIcon />
                 Rate a Profile
               </button>
-              <button className="navbar__popup-item" onClick={closePopup}>
+              <button
+                className="navbar__popup-item"
+                onMouseDown={(e) => { e.stopPropagation(); openModal('review-product') }}
+              >
                 <StarIcon />
                 Review a Product
               </button>
@@ -117,26 +159,52 @@ export const NavBar = () => {
           )}
         </div>
 
-        {/* Products We Trust */}
         <Link
           to="/products"
           className={`navbar__item ${isActive('/products') ? 'active' : ''}`}
-          onClick={closePopup}
+          onClick={() => setPopupOpen(false)}
         >
           <LipstickIcon />
           <span className="navbar__item-label">Beauty</span>
         </Link>
 
-        {/* Profile */}
         <Link
           to="/profile"
           className={`navbar__item ${isActive('/profile') ? 'active' : ''}`}
-          onClick={closePopup}
+          onClick={() => setPopupOpen(false)}
         >
           <ProfileIcon />
           <span className="navbar__item-label">Profile</span>
         </Link>
       </nav>
+
+      {/* Modals — rendered outside nav so z-index is clean */}
+      {activeModal === 'girl-talk' && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <GirlTalkForm onClose={closeModal} onPost={handleGirlTalkPost} />
+          </div>
+        </div>
+      )}
+
+      {activeModal === 'rate-guy' && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <RateGuyForm onClose={closeModal} />
+          </div>
+        </div>
+      )}
+
+      {activeModal === 'review-product' && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <button className="modal__close" onClick={closeModal}>✕</button>
+            <p style={{ textAlign: 'center', padding: '40px 0', color: '#aaa' }}>
+              Review a Product — coming soon
+            </p>
+          </div>
+        </div>
+      )}
     </>
   )
 }

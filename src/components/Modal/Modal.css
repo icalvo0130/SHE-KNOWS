@@ -1,0 +1,133 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+.modal {
+  background: var(--blanco);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  padding: 32px 28px 28px 28px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  animation: modalIn 0.2s ease;
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal__close {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: var(--negro);
+  line-height: 1;
+  font-weight: 600;
+}
+
+.modal__close:hover {
+  color: var(--rojo);
+}
+
+/* ---- Mobile fullscreen post view ---- */
+@media (max-width: 767px) {
+  .modal-overlay {
+    align-items: flex-start;
+    padding: 0;
+  }
+
+  .modal {
+    border-radius: 0;
+    max-width: 100%;
+    width: 100%;
+    min-height: 100dvh;
+    max-height: 100dvh;
+    padding: 80px 20px 24px 20px;
+  }
+
+  .modal__close {
+    display: none; /* on mobile we use the header Cancel button */
+  }
+}
+
+/* Mobile header bar (Cancel + Post title + Post btn) */
+.modal__mobile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 301;
+  height: 60px;
+  background: var(--rojo);
+  padding: 0 20px;
+}
+
+.modal__mobile-header-cancel {
+  color: var(--blanco);
+  font-weight: 600;
+  font-size: 0.95rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+
+.modal__mobile-header-title {
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--crema);
+  font-size: 1.2rem;
+}
+
+.modal__mobile-header-post {
+  background: var(--crema);
+  color: var(--negro);
+  border: none;
+  border-radius: 20px;
+  padding: 8px 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: background 0.15s;
+}
+
+.modal__mobile-header-post:hover {
+  background: var(--rosadito);
+}
+
+.modal__mobile-header-post:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Desktop: show title + X, hide mobile header */
+@media (min-width: 768px) {
+  .modal__mobile-header {
+    display: none;
+  }
+}

@@ -1,0 +1,140 @@
+/* ================================
+   GirlTalk Page
+   ================================ */
+
+.girl-talk {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.girl-talk__layout {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+.girl-talk__feed {
+  flex: 1;
+  min-width: 0;
+}
+
+.girl-talk__banner {
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  width: 100%;
+}
+
+.girl-talk__banner img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.girl-talk__new-post {
+  background: var(--blanco);
+  border: 1px solid var(--gris-borde);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.girl-talk__new-post textarea {
+  width: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--negro);
+  min-height: 72px;
+  line-height: 1.5;
+}
+
+.girl-talk__new-post textarea::placeholder {
+  color: #aaa;
+}
+
+.girl-talk__new-post-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 10px;
+  border-top: 1px solid var(--gris-borde);
+  margin-top: 10px;
+}
+
+.girl-talk__post-btn {
+  background: var(--rojo);
+  color: var(--blanco);
+  border: none;
+  border-radius: 20px;
+  padding: 8px 24px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: background 0.15s ease;
+}
+
+.girl-talk__post-btn:hover {
+  background: var(--fucsia);
+}
+
+.girl-talk__post-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.girl-talk__posts {
+  background: var(--blanco);
+  border: 1px solid var(--gris-borde);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+/* Right sidebar — desktop only */
+.girl-talk__sidebar {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .girl-talk__sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: calc(var(--header-height-desktop) + 24px);
+  }
+
+  .girl-talk__sidebar-title {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    color: var(--rojo);
+    margin-bottom: 4px;
+  }
+
+  .girl-talk__sidebar-card {
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    text-decoration: none;
+    display: block;
+  }
+
+  .girl-talk__sidebar-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--sombra);
+  }
+
+  .girl-talk__sidebar-card img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+}

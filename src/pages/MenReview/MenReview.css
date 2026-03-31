@@ -1,0 +1,264 @@
+/* ================================
+   Men Under Review Page
+   ================================ */
+
+.men-review {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 0 24px 0;
+}
+
+.men-review__search-bar {
+  background: var(--rojo);
+  padding: 16px 16px 20px 16px;
+}
+
+.men-review__search-input-wrap {
+  display: flex;
+  align-items: center;
+  background: var(--crema);
+  border-radius: 24px;
+  padding: 10px 16px;
+  gap: 10px;
+}
+
+.men-review__search-input-wrap svg {
+  width: 20px;
+  height: 20px;
+  color: var(--rojo);
+  flex-shrink: 0;
+}
+
+.men-review__search-input-wrap input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--negro);
+}
+
+.men-review__search-input-wrap input::placeholder {
+  color: #aaa;
+}
+
+.men-review__filters {
+  display: flex;
+  gap: 8px;
+  padding: 16px 16px 8px 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.men-review__filters::-webkit-scrollbar {
+  display: none;
+}
+
+.men-review__filter-tag {
+  border: 1.5px solid var(--rosado);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--negro);
+  background: var(--blanco);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  font-family: var(--font-body);
+}
+
+.men-review__filter-tag:hover,
+.men-review__filter-tag.active {
+  background: var(--rosado);
+  color: var(--blanco);
+  border-color: var(--rosado);
+}
+
+.men-review__layout {
+  display: flex;
+  gap: 32px;
+  padding: 16px 16px 0 16px;
+  align-items: flex-start;
+}
+
+.men-review__feed {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Review Card */
+.review-card {
+  border-bottom: 1px solid var(--gris-borde);
+  padding: 20px 0;
+}
+
+.review-card__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.review-card__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.review-card__username {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--negro);
+}
+
+.review-card__man-name {
+  display: inline-block;
+  background: var(--rosadito);
+  border-radius: 20px;
+  padding: 4px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--negro);
+  margin-bottom: 12px;
+}
+
+.review-card__image {
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.review-card__description {
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: #333;
+  margin-bottom: 16px;
+}
+
+.review-card__votes {
+  display: flex;
+  gap: 12px;
+}
+
+.review-card__vote-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1.5px solid var(--gris-borde);
+  border-radius: 20px;
+  padding: 7px 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  background: var(--blanco);
+  font-family: var(--font-body);
+  transition: all 0.15s ease;
+  color: var(--negro);
+}
+
+.review-card__vote-btn:hover {
+  border-color: var(--rosado);
+}
+
+.review-card__vote-btn.voted-red {
+  background: #fff0f0;
+  border-color: #e53935;
+  color: #e53935;
+}
+
+.review-card__vote-btn.voted-green {
+  background: #f0fff4;
+  border-color: #2e7d32;
+  color: #2e7d32;
+}
+
+.review-card__vote-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Desktop sidebar */
+.men-review__sidebar {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .men-review__sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: calc(var(--header-height-desktop) + 24px);
+  }
+
+  .men-review__sidebar-title {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    color: var(--rojo);
+    margin-bottom: 4px;
+  }
+
+  .men-review__rank-box {
+    background: var(--rosadito);
+    border-radius: 14px;
+    padding: 16px;
+  }
+
+  .men-review__rank-box-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .men-review__rank-box-title.green { color: #2e7d32; }
+  .men-review__rank-box-title.red { color: #e53935; }
+
+  .men-review__rank-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--rosado);
+    border-radius: 20px;
+    padding: 6px 12px;
+    margin-bottom: 8px;
+  }
+
+  .men-review__rank-item:last-child { margin-bottom: 0; }
+
+  .men-review__rank-item-name {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--blanco);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+  }
+
+  .men-review__rank-item-count {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--blanco);
+    flex-shrink: 0;
+  }
+
+  .men-review__rank-item-count svg {
+    width: 14px;
+    height: 14px;
+  }
+}
