@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { GirlTalkForm } from '../PostForms/GirlTalkForm/GirlTalkForm'
 import { RateGuyForm } from '../PostForms/RateGuyForm/RateGuyForm'
+import { ReviewProductForm } from '../PostForms/Reviewproductform/Reviewproductform'
 import '../Modal/Modal.css'
 import './NavBar.css'
 
@@ -198,10 +199,7 @@ export const NavBar = () => {
       {activeModal === 'review-product' && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <button className="modal__close" onClick={closeModal}>✕</button>
-            <p style={{ textAlign: 'center', padding: '40px 0', color: '#aaa' }}>
-              Review a Product — coming soon
-            </p>
+            <ReviewProductForm onClose={closeModal} />
           </div>
         </div>
       )}

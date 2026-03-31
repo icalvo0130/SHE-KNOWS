@@ -28,3 +28,27 @@ export interface MenReviewPost {
   greenFlags: number
   userVote: 'red' | 'green' | null
 }
+
+export interface ProductComment {
+  id: number
+  username: string
+  avatarColor: string
+  text: string
+}
+
+export type ProductCategory = 'Make-Up' | 'Skin Care' | 'Clothes' | 'Gym'
+
+export interface ProductPost {
+  id: number
+  username: string
+  avatarColor: string
+  productName: string
+  brand: string
+  imageUrl: string
+  category: ProductCategory
+  userRating: number        // the poster's rating (1-5)
+  communityRatings: number[] // ratings from other users
+  description: string
+  comments: ProductComment[]
+  createdAt: number         // timestamp ms for weekly filter
+}
