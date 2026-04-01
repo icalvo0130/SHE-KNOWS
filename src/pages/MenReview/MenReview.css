@@ -91,7 +91,6 @@
   flex: 1;
   min-width: 0;
   max-width: 650px;
-  margin-left: 70px;
   display: flex;
   flex-direction: column;
 }
@@ -186,7 +185,7 @@
     gap: 16px;
     width: 300px;
     flex-shrink: 0;
-    position: sticky;
+    
     top: calc(var(--header-height-desktop) + 24px);
   }
 
@@ -341,7 +340,6 @@
   flex: 1;
   min-width: 0;
   max-width: 650px;
-  margin-left: 70px;
   display: flex;
   flex-direction: column;
 }
@@ -436,7 +434,7 @@
     gap: 16px;
     width: 300px;
     flex-shrink: 0;
-    position: sticky;
+    
     top: calc(var(--header-height-desktop) + 24px);
   }
 

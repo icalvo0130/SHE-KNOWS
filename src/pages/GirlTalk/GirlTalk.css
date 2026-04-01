@@ -12,12 +12,6 @@
   align-items: flex-start;
 }
 
-.girl-talk__feed {
-  flex: 1;
-  min-width: 0;
-  max-width: 650px;
-  margin-left: 70px;
-}
 
 .girl-talk__banner {
   border-radius: 16px;
