@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import './GirlTalkForm.css'
-import '../../Modal/Modal.css'
+import '../../Popup/Popup.css'
 
 type GirlTalkFormProps = {
   onClose: () => void
@@ -20,13 +20,13 @@ export const GirlTalkForm = ({ onClose, onPost }: GirlTalkFormProps) => {
   return (
     <>
       {/* Mobile top bar */}
-      <div className="modal__mobile-header">
-        <button className="modal__mobile-header-cancel" onClick={onClose}>
+      <div className="Popup__mobile-header">
+        <button className="Popup__mobile-header-cancel" onClick={onClose}>
           Cancel
         </button>
-        <span className="modal__mobile-header-title">Post</span>
+        <span className="Popup__mobile-header-title">Post</span>
         <button
-          className="modal__mobile-header-post"
+          className="Popup__mobile-header-post"
           onClick={handlePost}
           disabled={!canPost}
         >
@@ -36,7 +36,7 @@ export const GirlTalkForm = ({ onClose, onPost }: GirlTalkFormProps) => {
 
       {/* Desktop title */}
       <h2 className="girl-talk-form__title">Post</h2>
-      <button className="modal__close" onClick={onClose}>✕</button>
+      <button className="Popup__close" onClick={onClose}>✕</button>
 
       <textarea
         className="girl-talk-form__textarea"

@@ -3,7 +3,6 @@
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 100;
   height: var(--navbar-height-mobile);
   background-color: var(--blanco);
   border-top: 1px solid var(--gris-borde);
@@ -135,15 +134,14 @@
   z-index: 140;  
 }
 
-/* ---- DESKTOP: left sidebar ---- */
 @media (min-width: 768px) {
   .navbar {
     position: fixed;
     top: 0;
-    left: 0;
+    left: var(--page-margin); 
     bottom: 0;
     right: auto;
-    width: var(--sidebar-width);
+
     height: 100vh;
     flex-direction: column;
     justify-content: flex-start;

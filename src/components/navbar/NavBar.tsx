@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { GirlTalkForm } from '../PostForms/GirlTalkForm/GirlTalkForm'
 import { RateGuyForm } from '../PostForms/RateGuyForm/RateGuyForm'
 import { ReviewProductForm } from '../PostForms/Reviewproductform/Reviewproductform'
-import '../Modal/Modal.css'
+import '../Popup/Popup.css'
 import './NavBar.css'
 
 const HomeIcon = () => (
@@ -66,11 +66,11 @@ const StarIcon = () => (
   </svg>
 )
 
-type ActiveModal = 'girl-talk' | 'rate-guy' | 'review-product' | null
+type ActivePopup = 'girl-talk' | 'rate-guy' | 'review-product' | null
 
 export const NavBar = () => {
   const [popupOpen, setPopupOpen] = useState(false)
-  const [activeModal, setActiveModal] = useState<ActiveModal>(null)
+  const [activePopup, setActivePopup] = useState<ActivePopup>(null)
   const location = useLocation()
   const popupRef = useRef<HTMLDivElement>(null)
 
@@ -88,17 +88,17 @@ export const NavBar = () => {
 
   const isActive = (path: string) => location.pathname === path
 
-  const openModal = (type: ActiveModal) => {
+  const openPopup = (type: ActivePopup) => {
     setPopupOpen(false)
-    setActiveModal(type)
+    setActivePopup(type)
   }
 
-  const closeModal = () => setActiveModal(null)
+  const closePopup = () => setActivePopup(null)
 
   const handleGirlTalkPost = (text: string) => {
     const addPost = (window as unknown as Record<string, unknown>).__addGirlTalkPost as ((t: string) => void) | undefined
     if (addPost) addPost(text)
-    closeModal()
+    closePopup()
   }
 
   return (
@@ -137,21 +137,21 @@ export const NavBar = () => {
             <div className="navbar__popup">
               <button
                 className="navbar__popup-item"
-                onMouseDown={(e) => { e.stopPropagation(); openModal('girl-talk') }}
+                onMouseDown={(e) => { e.stopPropagation(); openPopup('girl-talk') }}
               >
                 <ChatIcon />
                 Girl Talk
               </button>
               <button
                 className="navbar__popup-item"
-                onMouseDown={(e) => { e.stopPropagation(); openModal('rate-guy') }}
+                onMouseDown={(e) => { e.stopPropagation(); openPopup('rate-guy') }}
               >
                 <FlagIcon />
                 Rate a Profile
               </button>
               <button
                 className="navbar__popup-item"
-                onMouseDown={(e) => { e.stopPropagation(); openModal('review-product') }}
+                onMouseDown={(e) => { e.stopPropagation(); openPopup('review-product') }}
               >
                 <StarIcon />
                 Review a Product
@@ -179,27 +179,27 @@ export const NavBar = () => {
         </Link>
       </nav>
 
-      {/* Modals — rendered outside nav so z-index is clean */}
-      {activeModal === 'girl-talk' && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <GirlTalkForm onClose={closeModal} onPost={handleGirlTalkPost} />
+      {/* Popups — rendered outside nav so z-index is clean */}
+      {activePopup === 'girl-talk' && (
+        <div className="Popup-overlay" onClick={closePopup}>
+          <div className="Popup" onClick={(e) => e.stopPropagation()}>
+            <GirlTalkForm onClose={closePopup} onPost={handleGirlTalkPost} />
           </div>
         </div>
       )}
 
-      {activeModal === 'rate-guy' && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <RateGuyForm onClose={closeModal} />
+      {activePopup === 'rate-guy' && (
+        <div className="Popup-overlay" onClick={closePopup}>
+          <div className="Popup" onClick={(e) => e.stopPropagation()}>
+            <RateGuyForm onClose={closePopup} />
           </div>
         </div>
       )}
 
-      {activeModal === 'review-product' && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <ReviewProductForm onClose={closeModal} />
+      {activePopup === 'review-product' && (
+        <div className="Popup-overlay" onClick={closePopup}>
+          <div className="Popup" onClick={(e) => e.stopPropagation()}>
+            <ReviewProductForm onClose={closePopup} />
           </div>
         </div>
       )}

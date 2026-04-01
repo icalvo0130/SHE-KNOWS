@@ -195,7 +195,7 @@ export const MenReview = () => {
 
           <div className="men-review__rank-box men-review__rank-box--green">
             <p className="men-review__rank-box-title green">
-              <GreenFlagIcon /> Green flag
+             
             </p>
             {topGreen.map((post) => (
               <div key={`g-${post.id}`} className="men-review__rank-item">
@@ -210,7 +210,6 @@ export const MenReview = () => {
 
           <div className="men-review__rank-box men-review__rank-box--red">
             <p className="men-review__rank-box-title red">
-              <RedFlagIcon /> Red flag
             </p>
             {topRed.map((post) => (
               <div key={`r-${post.id}`} className="men-review__rank-item">

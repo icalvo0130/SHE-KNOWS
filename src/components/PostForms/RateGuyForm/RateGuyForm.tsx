@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import '../../Modal/Modal.css'
+import '../../Popup/Popup.css'
 import './RateGuyForm.css'
 
 type RateGuyFormProps = {
@@ -72,11 +72,11 @@ export const RateGuyForm = ({ onClose }: RateGuyFormProps) => {
   return (
     <>
       {/* Mobile header */}
-      <div className="modal__mobile-header">
-        <button className="modal__mobile-header-cancel" onClick={onClose}>Cancel</button>
-        <span className="modal__mobile-header-title">Post</span>
+      <div className="Popup__mobile-header">
+        <button className="Popup__mobile-header-cancel" onClick={onClose}>Cancel</button>
+        <span className="Popup__mobile-header-title">Post</span>
         <button
-          className="modal__mobile-header-post"
+          className="Popup__mobile-header-post"
           onClick={handlePost}
           disabled={!canPost}
         >
@@ -85,7 +85,7 @@ export const RateGuyForm = ({ onClose }: RateGuyFormProps) => {
       </div>
 
       <h2 className="rate-guy-form__title">Rate a guy</h2>
-      <button className="modal__close" onClick={onClose}>✕</button>
+      <button className="Popup__close" onClick={onClose}>✕</button>
 
       {/* Step 1 */}
       <div className="rate-guy-form__step">

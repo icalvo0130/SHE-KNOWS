@@ -27,11 +27,14 @@
 /* Desktop sidebar takes over nav → header becomes a top bar */
 @media (min-width: 768px) {
   .header {
-    left: var(--sidebar-width);
+   
+    right: 0;
     height: var(--header-height-desktop);
     justify-content: flex-start;
-    padding: 0 32px;
+    
+    padding: 0 32px;  
   }
+
 
   .header__logo-text {
     display: block;

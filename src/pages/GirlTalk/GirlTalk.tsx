@@ -2,14 +2,14 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { PostCard } from '../../components/PostCard/PostCard'
 import type { GirlTalkPost } from '../../types/Post'
-import girlTalkBanner from '../../assets/GirlTalkPic.png'
+import girlTalkBanner from '../../assets/girltalkbanner..png'
 import topRatedImg from '../../assets/TopRated.png'
 import productsTrustImg from '../../assets/Products.png'
 import menReviewImg from '../../assets/MenReviewPic.png'
 import './GirlTalk.css'
 
-const AVATAR_COLORS = ['#fd6fae', '#c60017', '#fc007b', '#ffc1d8', '#ff6b6b', '#e91e8c']
-const getRandomColor = () => AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)]
+
+
 
 const initialPosts: GirlTalkPost[] = [
   {
@@ -66,7 +66,7 @@ export const GirlTalk = ({ newPostText }: GirlTalkProps) => {
         {
           id: nextId++,
           username: 'AnonymousCat',
-          avatarColor: getRandomColor(),
+          avatarColor: '#888',
           text: newPostText,
           likes: 0,
           liked: false,
@@ -82,7 +82,7 @@ export const GirlTalk = ({ newPostText }: GirlTalkProps) => {
     const newPost: GirlTalkPost = {
       id: nextId++,
       username: 'AnonymousCat',
-      avatarColor: getRandomColor(),
+      avatarColor: '#888',
       text,
       likes: 0,
       liked: false,
@@ -115,7 +115,7 @@ export const GirlTalk = ({ newPostText }: GirlTalkProps) => {
               ...post,
               comments: [
                 ...post.comments,
-                { id: nextCommentId++, username: 'AnonymousCat', avatarColor: getRandomColor(), text },
+                { id: nextCommentId++, username: 'AnonymousCat', avatarColor: '#888', text },
               ],
             }
           : post

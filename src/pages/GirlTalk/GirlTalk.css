@@ -1,6 +1,4 @@
-/* ================================
-   GirlTalk Page
-   ================================ */
+
 
 .girl-talk {
   max-width: 1200px;
@@ -10,13 +8,15 @@
 
 .girl-talk__layout {
   display: flex;
-  gap: 32px;
+  gap: 80px;
   align-items: flex-start;
 }
 
 .girl-talk__feed {
   flex: 1;
   min-width: 0;
+  max-width: 650px;
+  margin-left: 70px;
 }
 
 .girl-talk__banner {
@@ -105,9 +105,8 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
-    width: 260px;
+    width: 300px;
     flex-shrink: 0;
-    position: sticky;
     top: calc(var(--header-height-desktop) + 24px);
   }
 

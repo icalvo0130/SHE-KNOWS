@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import type { ProductPost, ProductCategory, ProductComment } from '../../types/Post'
-import productsBanner from '../../assets/Products.png'
-import topRatedImg from '../../assets/TopRated.png'
+import productsBanner from '../../assets/Bannerproductspage.png'
+import topRatedImg from '../../assets/Topratedlogo.png'
 import './Products.css'
 
 /* ---- Icons ---- */

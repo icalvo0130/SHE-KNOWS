@@ -1,18 +1,16 @@
-
-
 .products {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 0 24px 0;
+  padding: 24px 16px;
 }
 
-/* Search bar (in red header zone) */
+/* Search bar mobile — mismo truco que MenReview */
 .products__search-bar {
   background: var(--rojo);
   padding: 16px 16px 20px 16px;
+  margin: -24px -16px 24px -16px;
 }
 
-/* Desktop: search bar is in the header */
 @media (min-width: 768px) {
   .products__search-bar {
     display: none;
@@ -45,21 +43,20 @@
   color: var(--negro);
 }
 
-.products__search-input-wrap input::placeholder {
-  color: #aaa;
-}
+.products__search-input-wrap input::placeholder { color: #aaa; }
 
-/* Page layout */
+/* ── Layout: idéntico a GirlTalk ── */
 .products__layout {
   display: flex;
-  gap: 32px;
-  padding: 20px 16px 0 16px;
+  gap: 80px;
   align-items: flex-start;
 }
 
 .products__feed {
   flex: 1;
   min-width: 0;
+  max-width: 650px;
+  margin-left: 70px;
 }
 
 /* Hero banner */
@@ -70,11 +67,7 @@
   width: 100%;
 }
 
-.products__banner img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
+.products__banner img { width: 100%; height: auto; display: block; }
 
 /* Category pills */
 .products__categories-title {
@@ -124,12 +117,6 @@
   justify-content: center;
   overflow: hidden;
   transition: background 0.15s;
-}
-
-.products__category-icon img {
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
 }
 
 .products__category-label {
@@ -212,7 +199,6 @@
   flex-shrink: 0;
 }
 
-/* Star rating row */
 .product-card__rating-row {
   display: flex;
   align-items: center;
@@ -233,15 +219,8 @@
   color: #e0a800;
 }
 
-.product-card__star svg {
-  width: 20px;
-  height: 20px;
-}
-
-.product-card__rating-text {
-  font-size: 0.82rem;
-  color: #888;
-}
+.product-card__star svg { width: 20px; height: 20px; }
+.product-card__rating-text { font-size: 0.82rem; color: #888; }
 
 .product-card__comment-btn {
   display: flex;
@@ -259,7 +238,6 @@
 .product-card__comment-btn:hover { color: var(--rojo); }
 .product-card__comment-btn svg { width: 18px; height: 18px; }
 
-/* Comments */
 .product-card__comments {
   border-top: 1px solid var(--gris-borde);
   padding: 12px 0 4px 0;
@@ -290,12 +268,7 @@
   line-height: 1.45;
 }
 
-.product-card__comment-username {
-  font-weight: 600;
-  color: var(--negro);
-  margin-bottom: 2px;
-}
-
+.product-card__comment-username { font-weight: 600; color: var(--negro); margin-bottom: 2px; }
 .product-card__comment-text { color: #444; }
 
 .product-card__comment-input {
@@ -333,7 +306,7 @@
 
 .product-card__comment-input button:hover { background: var(--rojo); }
 
-/* ---- Category view: Top Rated banner + heading ---- */
+/* ---- Category view extras ---- */
 .products__top-rated-banner {
   border-radius: 16px;
   overflow: hidden;
@@ -341,6 +314,9 @@
   cursor: pointer;
   transition: transform 0.15s;
   display: block;
+  border: none;
+  padding: 0;
+  width: 100%;
 }
 
 .products__top-rated-banner:hover { transform: translateY(-2px); }
@@ -354,9 +330,9 @@
   margin-bottom: 20px;
 }
 
-/* ---- Top Rated podium view ---- */
+/* ---- Top Rated podium ---- */
 .top-rated-view {
-  padding: 20px 16px;
+  padding: 0;
 }
 
 .top-rated-view__toggle {
@@ -387,7 +363,6 @@
   color: var(--negro);
 }
 
-/* Podium */
 .top-rated-view__podium-area {
   background: var(--rosadito);
   border-radius: 20px;
@@ -445,20 +420,9 @@
   justify-content: center;
 }
 
-.top-rated-view__podium-bar--1 {
-  background: var(--rojo);
-  height: 140px;
-}
-
-.top-rated-view__podium-bar--2 {
-  background: var(--rosado);
-  height: 100px;
-}
-
-.top-rated-view__podium-bar--3 {
-  background: var(--fucsia);
-  height: 80px;
-}
+.top-rated-view__podium-bar--1 { background: var(--rojo); height: 140px; }
+.top-rated-view__podium-bar--2 { background: var(--rosado); height: 100px; }
+.top-rated-view__podium-bar--3 { background: var(--fucsia); height: 80px; }
 
 .top-rated-view__podium-number {
   font-size: 3rem;
@@ -466,7 +430,6 @@
   color: var(--blanco);
 }
 
-/* Full ranking list */
 .top-rated-view__title {
   font-family: var(--font-display);
   font-size: 1.2rem;
@@ -524,12 +487,9 @@
   text-overflow: ellipsis;
 }
 
-.top-rated-view__item-brand {
-  font-size: 0.78rem;
-  color: #888;
-}
+.top-rated-view__item-brand { font-size: 0.78rem; color: #888; }
 
-/* ---- Desktop right sidebar: Tendencias ---- */
+/* ---- Desktop right sidebar — igual que GirlTalk ---- */
 .products__sidebar {
   display: none;
 }
@@ -539,7 +499,7 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
-    width: 260px;
+    width: 300px;
     flex-shrink: 0;
     position: sticky;
     top: calc(var(--header-height-desktop) + 24px);
@@ -581,10 +541,7 @@
     text-overflow: ellipsis;
   }
 
-  .products__sidebar-card-brand {
-    font-size: 0.75rem;
-    color: #777;
-  }
+  .products__sidebar-card-brand { font-size: 0.75rem; color: #777; }
 
   .products__sidebar-card-stars {
     display: flex;

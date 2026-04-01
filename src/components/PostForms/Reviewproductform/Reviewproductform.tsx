@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import type { ProductCategory, ProductPost } from '../../../types/Post'
-import '../../Modal/Modal.css'
+import '../../Popup/Popup.css'
 import './ReviewProductForm.css'
 
 type ReviewProductFormProps = {
@@ -170,11 +170,11 @@ export const ReviewProductForm = ({ onClose }: ReviewProductFormProps) => {
   return (
     <>
       {/* Mobile header */}
-      <div className="modal__mobile-header">
-        <button className="modal__mobile-header-cancel" onClick={onClose}>Cancel</button>
-        <span className="modal__mobile-header-title">Post</span>
+      <div className="Popup__mobile-header">
+        <button className="Popup__mobile-header-cancel" onClick={onClose}>Cancel</button>
+        <span className="Popup__mobile-header-title">Post</span>
         <button
-          className="modal__mobile-header-post"
+          className="Popup__mobile-header-post"
           onClick={handlePost}
           disabled={!canPost}
         >
@@ -183,7 +183,7 @@ export const ReviewProductForm = ({ onClose }: ReviewProductFormProps) => {
       </div>
 
       <h2 className="review-product-form__title">Review a product</h2>
-      <button className="modal__close" onClick={onClose}>✕</button>
+      <button className="Popup__close" onClick={onClose}>✕</button>
 
       <div className="review-product-form__grid">
         {/* ---- Left column ---- */}

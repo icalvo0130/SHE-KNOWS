@@ -1,4 +1,4 @@
-.modal-overlay {
+.Popup-overlay {
   position: fixed;
   inset: 0;
   z-index: 300;
@@ -9,7 +9,7 @@
   padding: 24px 16px;
 }
 
-.modal {
+.Popup {
   background: var(--blanco);
   border-radius: 20px;
   width: 100%;
@@ -19,10 +19,10 @@
   position: relative;
   padding: 32px 28px 28px 28px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-  animation: modalIn 0.2s ease;
+  animation: PopupIn 0.2s ease;
 }
 
-@keyframes modalIn {
+@keyframes PopupIn {
   from {
     opacity: 0;
     transform: translateY(16px) scale(0.97);
@@ -33,7 +33,7 @@
   }
 }
 
-.modal__close {
+.Popup__close {
   position: absolute;
   top: 16px;
   right: 20px;
@@ -46,18 +46,18 @@
   font-weight: 600;
 }
 
-.modal__close:hover {
+.Popup__close:hover {
   color: var(--rojo);
 }
 
 /* ---- Mobile fullscreen post view ---- */
 @media (max-width: 767px) {
-  .modal-overlay {
+  .Popup-overlay {
     align-items: flex-start;
     padding: 0;
   }
 
-  .modal {
+  .Popup {
     border-radius: 0;
     max-width: 100%;
     width: 100%;
@@ -66,13 +66,13 @@
     padding: 80px 20px 24px 20px;
   }
 
-  .modal__close {
+  .Popup__close {
     display: none; /* on mobile we use the header Cancel button */
   }
 }
 
 /* Mobile header bar (Cancel + Post title + Post btn) */
-.modal__mobile-header {
+.Popup__mobile-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -86,7 +86,7 @@
   padding: 0 20px;
 }
 
-.modal__mobile-header-cancel {
+.Popup__mobile-header-cancel {
   color: var(--blanco);
   font-weight: 600;
   font-size: 0.95rem;
@@ -96,14 +96,14 @@
   font-family: var(--font-body);
 }
 
-.modal__mobile-header-title {
+.Popup__mobile-header-title {
   font-family: var(--font-display);
   font-style: italic;
   color: var(--crema);
   font-size: 1.2rem;
 }
 
-.modal__mobile-header-post {
+.Popup__mobile-header-post {
   background: var(--crema);
   color: var(--negro);
   border: none;
@@ -116,18 +116,18 @@
   transition: background 0.15s;
 }
 
-.modal__mobile-header-post:hover {
+.Popup__mobile-header-post:hover {
   background: var(--rosadito);
 }
 
-.modal__mobile-header-post:disabled {
+.Popup__mobile-header-post:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
 /* Desktop: show title + X, hide mobile header */
 @media (min-width: 768px) {
-  .modal__mobile-header {
+  .Popup__mobile-header {
     display: none;
   }
 }
