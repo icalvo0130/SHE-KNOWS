@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import type { ProductCategory, ProductPost } from '../../../types/Post'
 import '../../Popup/Popup.css'
-import './ReviewProductForm.css'
+import './Reviewproductform.css'
 
 type ReviewProductFormProps = {
   onClose: () => void
