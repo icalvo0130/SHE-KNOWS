@@ -1,29 +1,8 @@
 import { useState } from 'react'
+import { Search, Flag } from 'lucide-react'
 import type { MenReviewPost } from '../../types/Post'
 import './MenReview.css'
 
-const SearchIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="11" cy="11" r="8" />
-    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-  </svg>
-)
-
-const RedFlagIcon = () => (
-  <svg viewBox="0 0 24 24" fill="#e53935" stroke="#e53935" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-    <line x1="4" y1="22" x2="4" y2="15" />
-  </svg>
-)
-
-const GreenFlagIcon = () => (
-  <svg viewBox="0 0 24 24" fill="#2e7d32" stroke="#2e7d32" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-    <line x1="4" y1="22" x2="4" y2="15" />
-  </svg>
-)
-
-/* ---- Static seed data ---- */
 const PLACEHOLDER_IMAGE_1 = 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=600&q=80'
 const PLACEHOLDER_IMAGE_2 = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80'
 const PLACEHOLDER_IMAGE_3 = 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&q=80'
@@ -64,7 +43,6 @@ const initialPosts: MenReviewPost[] = [
   },
 ]
 
-/* Compute top 3 by green flags and red flags */
 const getTopByGreen = (posts: MenReviewPost[]) =>
   [...posts].sort((a, b) => b.greenFlags - a.greenFlags).slice(0, 4)
 
@@ -75,21 +53,19 @@ const FILTERS = ['Todos', 'Recientes', 'Green flags', 'Red flags']
 
 export const MenReview = () => {
   const [posts, setPosts] = useState<MenReviewPost[]>(initialPosts)
+  const [search, setSearch] = useState('')
+  const [activeFilter, setActiveFilter] = useState('Todos')
 
-  // Bridge so RateGuyForm (inside NavBar) can add posts here
   if (typeof window !== 'undefined') {
     (window as unknown as Record<string, unknown>).__addMenReviewPost = (post: MenReviewPost) => {
       setPosts((prev) => [post, ...prev])
     }
   }
-  const [search, setSearch] = useState('')
-  const [activeFilter, setActiveFilter] = useState('Todos')
 
   const handleVote = (postId: number, vote: 'red' | 'green') => {
     setPosts((prev) =>
       prev.map((post) => {
         if (post.id !== postId) return post
-        // Toggle off if same vote
         if (post.userVote === vote) {
           return {
             ...post,
@@ -98,7 +74,6 @@ export const MenReview = () => {
             greenFlags: vote === 'green' ? post.greenFlags - 1 : post.greenFlags,
           }
         }
-        // Switch vote
         const wasRed = post.userVote === 'red'
         const wasGreen = post.userVote === 'green'
         return {
@@ -123,10 +98,9 @@ export const MenReview = () => {
 
   return (
     <div className="men-review">
-      {/* Search */}
       <div className="men-review__search-bar">
         <div className="men-review__search-input-wrap">
-          <SearchIcon />
+          <Search size={20} />
           <input
             type="text"
             placeholder="Search man"
@@ -136,7 +110,6 @@ export const MenReview = () => {
         </div>
       </div>
 
-      {/* Filter tags */}
       <div className="men-review__filters">
         {FILTERS.map((filter) => (
           <button
@@ -150,7 +123,6 @@ export const MenReview = () => {
       </div>
 
       <div className="men-review__layout">
-        {/* Feed */}
         <div className="men-review__feed">
           {filteredPosts.map((post) => (
             <div key={post.id} className="review-card">
@@ -161,11 +133,7 @@ export const MenReview = () => {
 
               <span className="review-card__man-name">{post.manName}</span>
 
-              <img
-                src={post.imageUrl}
-                alt={post.manName}
-                className="review-card__image"
-              />
+              <img src={post.imageUrl} alt={post.manName} className="review-card__image" />
 
               <p className="review-card__description">{post.description}</p>
 
@@ -174,14 +142,14 @@ export const MenReview = () => {
                   className={`review-card__vote-btn ${post.userVote === 'red' ? 'voted-red' : ''}`}
                   onClick={() => handleVote(post.id, 'red')}
                 >
-                  <RedFlagIcon />
+                  <Flag size={16} color="#e53935" fill={post.userVote === 'red' ? '#e53935' : 'none'} />
                   {post.redFlags}
                 </button>
                 <button
                   className={`review-card__vote-btn ${post.userVote === 'green' ? 'voted-green' : ''}`}
                   onClick={() => handleVote(post.id, 'green')}
                 >
-                  <GreenFlagIcon />
+                  <Flag size={16} color="#2e7d32" fill={post.userVote === 'green' ? '#2e7d32' : 'none'} />
                   {post.greenFlags}
                 </button>
               </div>
@@ -189,33 +157,33 @@ export const MenReview = () => {
           ))}
         </div>
 
-        {/* Desktop sidebar — Most voted */}
         <aside className="men-review__sidebar">
           <p className="men-review__sidebar-title">Most voted</p>
 
-          <div className="men-review__rank-box men-review__rank-box--green">
+          <div className="men-review__rank-box">
             <p className="men-review__rank-box-title green">
-             
+              <Flag size={14} color="#2e7d32" fill="#2e7d32" /> Green flag
             </p>
             {topGreen.map((post) => (
               <div key={`g-${post.id}`} className="men-review__rank-item">
                 <span className="men-review__rank-item-name">{post.manName}</span>
                 <span className="men-review__rank-item-count">
-                  <GreenFlagIcon />
+                  <Flag size={14} color="#fff" fill="#fff" />
                   {post.greenFlags}
                 </span>
               </div>
             ))}
           </div>
 
-          <div className="men-review__rank-box men-review__rank-box--red">
+          <div className="men-review__rank-box">
             <p className="men-review__rank-box-title red">
+              <Flag size={14} color="#e53935" fill="#e53935" /> Red flag
             </p>
             {topRed.map((post) => (
               <div key={`r-${post.id}`} className="men-review__rank-item">
                 <span className="men-review__rank-item-name">{post.manName}</span>
                 <span className="men-review__rank-item-count">
-                  <RedFlagIcon />
+                  <Flag size={14} color="#fff" fill="#fff" />
                   {post.redFlags}
                 </span>
               </div>

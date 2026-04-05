@@ -1,30 +1,9 @@
 import { useState, useMemo } from 'react'
+import { Search, MessageSquare, Star } from 'lucide-react'
 import type { ProductPost, ProductCategory, ProductComment } from '../../types/Post'
 import productsBanner from '../../assets/Bannerproductspage.png'
 import topRatedImg from '../../assets/Topratedlogo.png'
 import './Products.css'
-
-/* ---- Icons ---- */
-const SearchIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-  </svg>
-)
-const CommentIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-  </svg>
-)
-const StarFilled = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth={1}>
-    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-  </svg>
-)
-const StarEmpty = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}>
-    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-  </svg>
-)
 
 /* ---- Category icons (emoji-based for simplicity) ---- */
 const CATEGORY_ICONS: Record<string, string> = {
@@ -39,7 +18,7 @@ const CATEGORIES: ProductCategory[] = ['Make-Up', 'Skin Care', 'Clothes', 'Gym']
 const AVATAR_COLORS = ['#fd6fae', '#c60017', '#fc007b', '#ffc1d8', '#ff6b6b']
 const getRandomColor = () => AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)]
 
-/* ---- Seed data ---- */
+
 const NOW = Date.now()
 const ONE_WEEK = 7 * 24 * 60 * 60 * 1000
 
@@ -91,7 +70,7 @@ const initialPosts: ProductPost[] = [
 let nextPostId = initialPosts.length + 1
 let nextCommentId = 20
 
-/* ---- Helpers ---- */
+
 const getAvgRating = (post: ProductPost): number => {
   const all = [post.userRating, ...post.communityRatings]
   return all.reduce((a, b) => a + b, 0) / all.length
@@ -99,7 +78,7 @@ const getAvgRating = (post: ProductPost): number => {
 
 const formatRating = (r: number) => r.toFixed(1)
 
-/* ---- ProductCard sub-component ---- */
+
 type ProductCardProps = {
   post: ProductPost
   onRate: (id: number, stars: number) => void
@@ -150,7 +129,7 @@ const ProductCard = ({ post, onRate, onComment }: ProductCardProps) => {
               onMouseEnter={() => setHoverStar(s)}
               onMouseLeave={() => setHoverStar(0)}
             >
-              {s <= Math.round(hoverStar || avg) ? <StarFilled /> : <StarEmpty />}
+              {s <= Math.round(hoverStar || avg) ? <Star size={20} color="#e0a800" fill="#e0a800" /> : <Star size={20} color="#e0a800" fill="none" />}
             </button>
           ))}
         </div>
@@ -162,7 +141,7 @@ const ProductCard = ({ post, onRate, onComment }: ProductCardProps) => {
             className="product-card__comment-btn"
             onClick={() => setShowComments((p) => !p)}
           >
-            <CommentIcon />
+            <MessageSquare size={18} />
             {post.comments.length}
           </button>
         </div>
@@ -451,7 +430,7 @@ export const Products = () => {
       {/* Mobile search */}
       <div className="products__search-bar">
         <div className="products__search-input-wrap">
-          <SearchIcon />
+          <Search size={20} />
           <input
             type="text"
             placeholder="Search a product"
@@ -556,7 +535,7 @@ const SidebarTendencias = ({ tendencias }: SidebarProps) => (
           <div className="products__sidebar-card-stars">
             {[1, 2, 3, 4, 5].map((s) => (
               <span key={s}>
-                {s <= Math.round(t.avg) ? <StarFilled /> : <StarEmpty />}
+                {s <= Math.round(t.avg) ? <Star size={20} color="#e0a800" fill="#e0a800" /> : <Star size={20} color="#e0a800" fill="none" />}
               </span>
             ))}
           </div>

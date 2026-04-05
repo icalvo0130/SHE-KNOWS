@@ -7,7 +7,7 @@
   margin-bottom: 24px;
 }
 
-/* Two-column layout on desktop */
+
 .review-product-form__grid {
   display: flex;
   flex-direction: column;
@@ -26,7 +26,7 @@
   }
 }
 
-/* Steps */
+
 .review-product-form__step {
   display: flex;
   align-items: flex-start;
@@ -60,7 +60,7 @@
   margin-bottom: 8px;
 }
 
-/* Autocomplete wrapper */
+
 .review-product-form__autocomplete {
   position: relative;
 }
@@ -278,4 +278,18 @@
 @media (max-width: 767px) {
   .review-product-form__title { display: none; }
   .review-product-form__footer { display: none; }
+}
+
+
+.review-product-form__select-wrap {
+  position: relative;
+}
+
+.review-product-form__chevron {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--rojo);
 }

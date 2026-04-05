@@ -46,9 +46,9 @@ export interface ProductPost {
   brand: string
   imageUrl: string
   category: ProductCategory
-  userRating: number        // the poster's rating (1-5)
-  communityRatings: number[] // ratings from other users
+  userRating: number        
+  communityRatings: number[] 
   description: string
   comments: ProductComment[]
-  createdAt: number         // timestamp ms for weekly filter
+  createdAt: number         
 }
