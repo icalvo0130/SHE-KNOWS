@@ -11,6 +11,7 @@ import './GirlTalk.css'
 
 
 
+// Posts que se ven al entrar a la pagina
 const initialPosts: GirlTalkPost[] = [
   {
     id: 1,
@@ -52,14 +53,17 @@ const initialPosts: GirlTalkPost[] = [
   },
 ]
 
+// Numero para crear nuevos mensajes y comentarios
 let nextId = initialPosts.length + 1
 let nextCommentId = 10
 
+// Datos que puede recibir esta pagina
 type GirlTalkProps = {
   newPostText?: string
 }
 
 export const GirlTalk = ({ newPostText }: GirlTalkProps) => {
+  // Lista de mensajes que se actualiza en pantalla
   const [posts, setPosts] = useState<GirlTalkPost[]>(() => {
     if (newPostText) {
       return [
@@ -78,6 +82,7 @@ export const GirlTalk = ({ newPostText }: GirlTalkProps) => {
     return initialPosts
   })
 
+  // Agrega un nuevo mensaje arriba de la lista
   const addPost = (text: string) => {
     const newPost: GirlTalkPost = {
       id: nextId++,
@@ -91,12 +96,12 @@ export const GirlTalk = ({ newPostText }: GirlTalkProps) => {
     setPosts((prev) => [newPost, ...prev])
   }
 
-  // Expose addPost via a ref-like pattern using window for sibling communication
-  // (will be replaced with Context later)
+  // Permite que otro componente agregue mensajes aqui
   if (typeof window !== 'undefined') {
     (window as unknown as Record<string, unknown>).__addGirlTalkPost = addPost
   }
 
+  // Cambia el like de un mensaje
   const handleLike = (id: number) => {
     setPosts((prev) =>
       prev.map((post) =>
@@ -107,6 +112,7 @@ export const GirlTalk = ({ newPostText }: GirlTalkProps) => {
     )
   }
 
+  // Agrega un comentario dentro de un mensaje
   const handleComment = (postId: number, text: string) => {
     setPosts((prev) =>
       prev.map((post) =>
@@ -125,12 +131,15 @@ export const GirlTalk = ({ newPostText }: GirlTalkProps) => {
 
   return (
     <div className="girl-talk">
+      {/* Zona principal con mensajes y barra lateral */}
       <div className="girl-talk__layout">
+        {/* Lista de mensajes y banner principal */}
         <div className="girl-talk__feed">
           <div className="girl-talk__banner">
             <img src={girlTalkBanner} alt="Girl Talk" />
           </div>
 
+          {/* Mensajes de la comunidad */}
           <div className="girl-talk__posts">
             {posts.map((post) => (
               <PostCard
@@ -143,6 +152,7 @@ export const GirlTalk = ({ newPostText }: GirlTalkProps) => {
           </div>
         </div>
 
+        {/* Accesos rapidos a otras secciones */}
         <aside className="girl-talk__sidebar">
           <p className="girl-talk__sidebar-title">Don&apos;t miss this..</p>
           <Link to="/products" className="girl-talk__sidebar-card">
