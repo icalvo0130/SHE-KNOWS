@@ -10,11 +10,13 @@ import './NavBar.css'
 type ActivePopup = 'girl-talk' | 'rate-guy' | 'review-product' | null
 
 export const NavBar = () => {
+  // Controla el menu y la ventana de crear post
   const [popupOpen, setPopupOpen] = useState(false)
   const [activePopup, setActivePopup] = useState<ActivePopup>(null)
   const location = useLocation()
   const popupRef = useRef<HTMLDivElement>(null)
 
+  // Cierra el menu si se toca fuera de el
   useEffect(() => {
     if (!popupOpen) return
     const handleClickOutside = (e: MouseEvent) => {
@@ -28,13 +30,16 @@ export const NavBar = () => {
 
   const isActive = (path: string) => location.pathname === path
 
+  // Abre el formulario que se elija
   const openPopup = (type: ActivePopup) => {
     setPopupOpen(false)
     setActivePopup(type)
   }
 
+  // Cierra cualquier ventana abierta
   const closePopup = () => setActivePopup(null)
 
+  // Recibe el nuevo post de Girl Talk
   const handleGirlTalkPost = (text: string) => {
     const addPost = (window as unknown as Record<string, unknown>).__addGirlTalkPost as ((t: string) => void) | undefined
     if (addPost) addPost(text)
@@ -43,6 +48,7 @@ export const NavBar = () => {
 
   return (
     <>
+      {/* Barra de navegacion principal */}
       <nav className="navbar">
         <Link
           to="/girl-talk"
@@ -63,6 +69,7 @@ export const NavBar = () => {
         </Link>
 
         <div className="navbar__add" ref={popupRef}>
+          {/* Boton para crear contenido nuevo */}
           <button
             className="navbar__add-btn"
             onClick={() => setPopupOpen((prev) => !prev)}
@@ -73,6 +80,7 @@ export const NavBar = () => {
           </button>
 
           {popupOpen && (
+            /* Opciones para elegir que tipo de post crear */
             <div className="navbar__popup">
               <button
                 className="navbar__popup-item"
@@ -118,6 +126,7 @@ export const NavBar = () => {
         </Link>
       </nav>
 
+      {/* Ventana para publicar en Girl Talk */}
       {activePopup === 'girl-talk' && (
         <div className="Popup-overlay" onClick={closePopup}>
           <div className="Popup" onClick={(e) => e.stopPropagation()}>
@@ -126,6 +135,7 @@ export const NavBar = () => {
         </div>
       )}
 
+      {/* Ventana para valorar un chico */}
       {activePopup === 'rate-guy' && (
         <div className="Popup-overlay" onClick={closePopup}>
           <div className="Popup" onClick={(e) => e.stopPropagation()}>
@@ -134,6 +144,7 @@ export const NavBar = () => {
         </div>
       )}
 
+      {/* Ventana para reseñar un producto */}
       {activePopup === 'review-product' && (
         <div className="Popup-overlay" onClick={closePopup}>
           <div className="Popup" onClick={(e) => e.stopPropagation()}>

@@ -1,10 +1,12 @@
+/*Products We Trust Page*/
+
 .products {
   max-width: 1200px;
   margin: 0 auto;
   padding: 24px 16px;
 }
 
-/* Search bar mobile — mismo truco que MenReview */
+/* Search bar mobile */
 .products__search-bar {
   background: var(--rojo);
   padding: 16px 16px 20px 16px;
@@ -13,7 +15,14 @@
 
 @media (min-width: 768px) {
   .products__search-bar {
-    display: none;
+    margin: 0 0 24px 0;
+    padding: 0;
+    width: 100%;
+    background: transparent;
+  }
+
+  .products__search-input-wrap {
+    width: 100%;
   }
 }
 
@@ -45,7 +54,7 @@
 
 .products__search-input-wrap input::placeholder { color: #aaa; }
 
-/* ── Layout: idéntico a GirlTalk ── */
+/* Layout */
 .products__layout {
   display: flex;
   gap: 80px;
@@ -59,7 +68,6 @@
   margin-left: 70px;
 }
 
-/* Hero banner */
 .products__banner {
   border-radius: 16px;
   overflow: hidden;
@@ -117,6 +125,12 @@
   justify-content: center;
   overflow: hidden;
   transition: background 0.15s;
+}
+
+.products__category-icon img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
 }
 
 .products__category-label {
@@ -306,7 +320,7 @@
 
 .product-card__comment-input button:hover { background: var(--rojo); }
 
-/* ---- Category view extras ---- */
+/* Category view extras */
 .products__top-rated-banner {
   border-radius: 16px;
   overflow: hidden;
@@ -330,7 +344,7 @@
   margin-bottom: 20px;
 }
 
-/* ---- Top Rated podium ---- */
+/* Top Rated podium */
 .top-rated-view {
   padding: 0;
 }
@@ -489,7 +503,7 @@
 
 .top-rated-view__item-brand { font-size: 0.78rem; color: #888; }
 
-/* ---- Desktop right sidebar — igual que GirlTalk ---- */
+/* Desktop right sidebar */
 .products__sidebar {
   display: none;
 }
@@ -554,4 +568,24 @@
     height: 12px;
     color: #e0a800;
   }
+}
+
+/* Back button in TopRated */
+.top-rated-view__back-btn {
+  background: none;
+  border: none;
+  color: var(--rojo);
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 16px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+}
+
+.top-rated-view__back-btn:hover {
+  text-decoration: underline;
 }

@@ -10,21 +10,26 @@ type PostCardProps = {
 }
 
 export const PostCard = ({ post, onLike, onComment }: PostCardProps) => {
+  // Muestra o esconde los comentarios
   const [showComments, setShowComments] = useState(false)
+  // Texto que escribe la usuaria antes de publicar
   const [commentText, setCommentText] = useState('')
 
+  // Envia un comentario si el texto no esta vacio
   const handleComment = () => {
     if (commentText.trim() === '') return
     onComment(post.id, commentText.trim())
     setCommentText('')
   }
 
+  // Permite publicar con Enter
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') handleComment()
   }
 
   return (
     <article className="post-card">
+      {/* Cabecera del mensaje */}
       <div className="post-card__header">
         <div className="post-card__avatar" style={{ backgroundColor: post.avatarColor }} />
         <div className="post-card__info">
@@ -33,6 +38,7 @@ export const PostCard = ({ post, onLike, onComment }: PostCardProps) => {
         </div>
       </div>
 
+      {/* Acciones para comentar y dar like */}
       <div className="post-card__actions">
         <button
           className="post-card__action-btn"
@@ -52,6 +58,7 @@ export const PostCard = ({ post, onLike, onComment }: PostCardProps) => {
 
       {showComments && (
         <>
+          {/* Lista de comentarios ya guardados */}
           {post.comments.length > 0 && (
             <div className="post-card__comments">
               {post.comments.map((comment) => (
@@ -65,6 +72,7 @@ export const PostCard = ({ post, onLike, onComment }: PostCardProps) => {
               ))}
             </div>
           )}
+          {/* Campo para escribir un comentario nuevo */}
           <div className="post-card__comment-input">
             <input
               type="text"

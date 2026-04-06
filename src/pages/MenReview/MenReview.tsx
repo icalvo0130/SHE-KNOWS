@@ -52,16 +52,19 @@ const getTopByRed = (posts: MenReviewPost[]) =>
 const FILTERS = ['Todos', 'Recientes', 'Green flags', 'Red flags']
 
 export const MenReview = () => {
+  // Datos que se muestran en la pagina
   const [posts, setPosts] = useState<MenReviewPost[]>(initialPosts)
   const [search, setSearch] = useState('')
   const [activeFilter, setActiveFilter] = useState('Todos')
 
+  // Permite crear un post desde el formulario
   if (typeof window !== 'undefined') {
     (window as unknown as Record<string, unknown>).__addMenReviewPost = (post: MenReviewPost) => {
       setPosts((prev) => [post, ...prev])
     }
   }
 
+  // Cambia el voto de una tarjeta
   const handleVote = (postId: number, vote: 'red' | 'green') => {
     setPosts((prev) =>
       prev.map((post) => {
@@ -86,6 +89,7 @@ export const MenReview = () => {
     )
   }
 
+  // Filtra por texto y por tipo de lista
   const filteredPosts = posts.filter((post) => {
     const matchesSearch = post.manName.toLowerCase().includes(search.toLowerCase())
     if (activeFilter === 'Green flags') return matchesSearch && post.greenFlags > post.redFlags
@@ -98,6 +102,7 @@ export const MenReview = () => {
 
   return (
     <div className="men-review">
+      {/* Barra de busqueda */}
       <div className="men-review__search-bar">
         <div className="men-review__search-input-wrap">
           <Search size={20} />
@@ -110,6 +115,7 @@ export const MenReview = () => {
         </div>
       </div>
 
+      {/* Filtros para ordenar la lista */}
       <div className="men-review__filters">
         {FILTERS.map((filter) => (
           <button
@@ -122,6 +128,7 @@ export const MenReview = () => {
         ))}
       </div>
 
+      {/* Lista principal y resumen lateral */}
       <div className="men-review__layout">
         <div className="men-review__feed">
           {filteredPosts.map((post) => (
@@ -157,6 +164,7 @@ export const MenReview = () => {
           ))}
         </div>
 
+        {/* Ranking de los mas votados */}
         <aside className="men-review__sidebar">
           <p className="men-review__sidebar-title">Most voted</p>
 

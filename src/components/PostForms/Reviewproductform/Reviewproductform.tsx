@@ -21,6 +21,7 @@ const AVATAR_COLORS = ['#fd6fae', '#c60017', '#fc007b', '#ffc1d8', '#ff6b6b']
 const getRandomColor = () => AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)]
 
 export const ReviewProductForm = ({ onClose }: ReviewProductFormProps) => {
+  // Datos del producto que se esta creando
   const [productName, setProductName] = useState('')
   const [brand, setBrand] = useState('')
   const [imageUrl, setImageUrl] = useState('')
@@ -37,8 +38,10 @@ export const ReviewProductForm = ({ onClose }: ReviewProductFormProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // Solo deja publicar cuando todo lo necesario esta listo
   const canPost = productName.trim() !== '' && brand.trim() !== '' && category !== '' && rating > 0 && description.trim() !== ''
 
+  // Busca sugerencias mientras se escribe el nombre
   useEffect(() => {
     if (productName.trim().length < 2) {
       setSuggestions([])
@@ -74,6 +77,7 @@ export const ReviewProductForm = ({ onClose }: ReviewProductFormProps) => {
     return () => { if (searchTimeout.current) clearTimeout(searchTimeout.current) }
   }, [productName])
 
+  // Usa una sugerencia y rellena varios campos
   const handleSelectSuggestion = (product: MakeupApiProduct) => {
     setProductName(product.name)
     setBrand(product.brand || '')
@@ -83,6 +87,7 @@ export const ReviewProductForm = ({ onClose }: ReviewProductFormProps) => {
     setShowSuggestions(false)
   }
 
+  // Guarda una imagen local para mostrarla antes de publicar
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -91,6 +96,7 @@ export const ReviewProductForm = ({ onClose }: ReviewProductFormProps) => {
     reader.readAsDataURL(file)
   }
 
+  // Crea el post y lo manda a la pagina de Products
   const handlePost = () => {
     if (!canPost) return
     const newPost: ProductPost = {
@@ -116,17 +122,21 @@ export const ReviewProductForm = ({ onClose }: ReviewProductFormProps) => {
 
   return (
     <>
+      {/* Barra de acciones en celular */}
       <div className="Popup__mobile-header">
         <button className="Popup__mobile-header-cancel" onClick={onClose}>Cancel</button>
         <span className="Popup__mobile-header-title">Post</span>
         <button className="Popup__mobile-header-post" onClick={handlePost} disabled={!canPost}>Post</button>
       </div>
 
+      {/* Titulo de la ventana */}
       <h2 className="review-product-form__title">Review a product</h2>
       <button className="Popup__close" onClick={onClose}><X size={20} /></button>
 
+      {/* Campos principales del formulario */}
       <div className="review-product-form__grid">
         <div className="review-product-form__col">
+          {/* Paso uno con datos y foto */}
           <div className="review-product-form__step">
             <div className="review-product-form__step-num">1</div>
             <div className="review-product-form__step-content">
@@ -176,6 +186,7 @@ export const ReviewProductForm = ({ onClose }: ReviewProductFormProps) => {
             </div>
           </div>
 
+          {/* Paso dos con la categoria */}
           <div className="review-product-form__step">
             <div className="review-product-form__step-num">2</div>
             <div className="review-product-form__step-content">
@@ -192,6 +203,7 @@ export const ReviewProductForm = ({ onClose }: ReviewProductFormProps) => {
         </div>
 
         <div className="review-product-form__col">
+          {/* Paso tres con la nota y la opinion */}
           <div className="review-product-form__step">
             <div className="review-product-form__step-num">3</div>
             <div className="review-product-form__step-content">
@@ -227,6 +239,7 @@ export const ReviewProductForm = ({ onClose }: ReviewProductFormProps) => {
         </div>
       </div>
 
+      {/* Boton final para publicar */}
       <div className="review-product-form__footer">
         <button className="review-product-form__post-btn" onClick={handlePost} disabled={!canPost}>Post</button>
       </div>

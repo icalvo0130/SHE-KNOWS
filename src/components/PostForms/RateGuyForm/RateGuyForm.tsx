@@ -8,6 +8,7 @@ type RateGuyFormProps = {
 }
 
 export const RateGuyForm = ({ onClose }: RateGuyFormProps) => {
+  // Datos basicos del perfil que se va a valorar
   const [name, setName] = useState('')
   const [experience, setExperience] = useState('')
   const [flag, setFlag] = useState<'red' | 'green' | null>(null)
@@ -15,8 +16,10 @@ export const RateGuyForm = ({ onClose }: RateGuyFormProps) => {
   const [imageName, setImageName] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  // Solo permite publicar cuando esta todo completo
   const canPost = name.trim() !== '' && experience.trim() !== '' && flag !== null
 
+  // Guarda la imagen elegida para ver una vista previa
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -26,6 +29,7 @@ export const RateGuyForm = ({ onClose }: RateGuyFormProps) => {
     reader.readAsDataURL(file)
   }
 
+  // Crea el post y lo manda a la pagina de Men Review
   const handlePost = () => {
     if (!canPost) return
     const newPost = {
@@ -46,15 +50,18 @@ export const RateGuyForm = ({ onClose }: RateGuyFormProps) => {
 
   return (
     <>
+      {/* Barra de acciones en celular */}
       <div className="Popup__mobile-header">
         <button className="Popup__mobile-header-cancel" onClick={onClose}>Cancel</button>
         <span className="Popup__mobile-header-title">Post</span>
         <button className="Popup__mobile-header-post" onClick={handlePost} disabled={!canPost}>Post</button>
       </div>
 
+      {/* Titulo de la ventana */}
       <h2 className="rate-guy-form__title">Rate a guy</h2>
       <button className="Popup__close" onClick={onClose}><X size={20} /></button>
 
+      {/* Paso uno con el nombre y la experiencia */}
       <div className="rate-guy-form__step">
         <div className="rate-guy-form__step-num">1</div>
         <div className="rate-guy-form__step-content">
@@ -63,6 +70,7 @@ export const RateGuyForm = ({ onClose }: RateGuyFormProps) => {
         </div>
       </div>
 
+      {/* Paso dos para subir una foto */}
       <div className="rate-guy-form__step">
         <div className="rate-guy-form__step-num">2</div>
         <div className="rate-guy-form__step-content">
@@ -71,6 +79,7 @@ export const RateGuyForm = ({ onClose }: RateGuyFormProps) => {
         </div>
       </div>
 
+      {/* Paso tres para elegir el tipo de flag */}
       <div className="rate-guy-form__step">
         <div className="rate-guy-form__step-num">3</div>
         <div className="rate-guy-form__step-content">
@@ -114,6 +123,7 @@ export const RateGuyForm = ({ onClose }: RateGuyFormProps) => {
         </div>
       </div>
 
+      {/* Boton final para publicar */}
       <div className="rate-guy-form__footer">
         <button className="rate-guy-form__post-btn" onClick={handlePost} disabled={!canPost}>Post</button>
       </div>
