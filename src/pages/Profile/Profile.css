@@ -1,0 +1,227 @@
+.profile {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+/* Zona roja con el avatar y el boton de salir */
+.profile__header {
+  background-color: var(--rojo);
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 48px,
+    rgba(0, 0, 0, 0.06) 48px,
+    rgba(0, 0, 0, 0.06) 50px
+  );
+  height: 130px;
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding: 16px 20px;
+  border-radius: 0 0 0 0;
+}
+
+.profile__logout {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--crema);
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.9;
+}
+
+.profile__logout:hover {
+  opacity: 1;
+}
+
+/* El circulo del avatar queda mitad dentro y mitad fuera del header */
+.profile__avatar-wrap {
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.profile__avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 4px solid var(--blanco);
+}
+
+/* Nombre de usuario debajo del avatar */
+.profile__username {
+  font-family: var(--font-body);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--negro);
+  text-align: center;
+  margin-top: 52px;
+  margin-bottom: 16px;
+}
+
+/* Pestanas de navegacion del perfil */
+.profile__tabs {
+  display: flex;
+  border-bottom: 1px solid var(--gris-borde);
+  padding: 0 16px;
+}
+
+.profile__tab {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #aaa;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.profile__tab.active {
+  color: var(--negro);
+  border-bottom-color: var(--negro);
+  font-weight: 700;
+}
+
+/* Lista de posts del perfil */
+.profile__feed {
+  padding: 12px 0;
+}
+
+.profile__empty {
+  text-align: center;
+  color: #aaa;
+  padding: 40px 0;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+}
+
+/* Tarjeta individual de post */
+.profile__post-card {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--gris-borde);
+}
+
+.profile__post-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.profile__post-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.profile__post-username {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--negro);
+}
+
+.profile__post-man-name {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--negro);
+  margin-bottom: 4px;
+}
+
+.profile__post-brand {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: #888;
+  margin-bottom: 6px;
+}
+
+.profile__post-text {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--negro);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.profile__post-img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+/* Acciones del post (likes, comentarios, flags) */
+.profile__post-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.profile__post-action {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: #888;
+  background: none;
+  border: none;
+  cursor: default;
+}
+
+.profile__post-like {
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.profile__post-like.liked {
+  color: var(--fucsia);
+}
+
+.profile__post-action.green {
+  color: #2e7d32;
+}
+
+.profile__post-action.red {
+  color: #e53935;
+}
+
+/* Desktop: el perfil tiene un poco mas de espacio */
+@media (min-width: 768px) {
+  .profile__header {
+    height: 160px;
+  }
+
+  .profile__avatar {
+    width: 96px;
+    height: 96px;
+  }
+
+  .profile__avatar-wrap {
+    bottom: -48px;
+  }
+
+  .profile__username {
+    margin-top: 60px;
+    font-size: 1.4rem;
+  }
+
+  .profile__tab {
+    font-size: 0.95rem;
+    padding: 12px 16px;
+  }
+}

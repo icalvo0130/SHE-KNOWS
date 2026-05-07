@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Star, MessageSquare } from 'lucide-react'
 import type { ProductPost, ProductComment } from '../../types/Post'
-import { getAvgRating, formatRating } from '../../types/Post'
+import { getAvgRating, formatRating } from '../../types/Helpers'
 import './ProductCard.css'
 
 type ProductCardProps = {

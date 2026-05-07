@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { X, Upload, Star, ChevronDown } from 'lucide-react'
 import type { ProductCategory, ProductPost } from '../../../types/Post'
+import { getRandomColor } from '../../../types/Helpers'
 import '../../Popup/Popup.css'
 import './Reviewproductform.css'
 
 type ReviewProductFormProps = {
   onClose: () => void
+  onPost: (post: ProductPost) => void
 }
 
 interface MakeupApiProduct {
@@ -17,11 +19,8 @@ interface MakeupApiProduct {
 }
 
 const CATEGORIES: ProductCategory[] = ['Make-Up', 'Skin Care', 'Clothes', 'Gym']
-const AVATAR_COLORS = ['#fd6fae', '#c60017', '#fc007b', '#ffc1d8', '#ff6b6b']
-const getRandomColor = () => AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)]
 
-export const ReviewProductForm = ({ onClose }: ReviewProductFormProps) => {
-  // Datos del producto que se esta creando
+export const ReviewProductForm = ({ onClose, onPost }: ReviewProductFormProps) => {
   const [productName, setProductName] = useState('')
   const [brand, setBrand] = useState('')
   const [imageUrl, setImageUrl] = useState('')
@@ -41,7 +40,7 @@ export const ReviewProductForm = ({ onClose }: ReviewProductFormProps) => {
   // Solo deja publicar cuando todo lo necesario esta listo
   const canPost = productName.trim() !== '' && brand.trim() !== '' && category !== '' && rating > 0 && description.trim() !== ''
 
-  // Busca sugerencias mientras se escribe el nombre
+  // Busca sugerencias en la API mientras se escribe el nombre
   useEffect(() => {
     if (productName.trim().length < 2) {
       setSuggestions([])
@@ -77,7 +76,7 @@ export const ReviewProductForm = ({ onClose }: ReviewProductFormProps) => {
     return () => { if (searchTimeout.current) clearTimeout(searchTimeout.current) }
   }, [productName])
 
-  // Usa una sugerencia y rellena varios campos
+  // Usa una sugerencia y rellena varios campos automaticamente
   const handleSelectSuggestion = (product: MakeupApiProduct) => {
     setProductName(product.name)
     setBrand(product.brand || '')
@@ -96,7 +95,7 @@ export const ReviewProductForm = ({ onClose }: ReviewProductFormProps) => {
     reader.readAsDataURL(file)
   }
 
-  // Crea el post y lo manda a la pagina de Products
+  // Crea el post y lo envia al contexto a traves de la prop onPost
   const handlePost = () => {
     if (!canPost) return
     const newPost: ProductPost = {
@@ -113,9 +112,7 @@ export const ReviewProductForm = ({ onClose }: ReviewProductFormProps) => {
       comments: [],
       createdAt: Date.now(),
     }
-    const addPost = (window as unknown as Record<string, unknown>).__addProductPost as ((p: ProductPost) => void) | undefined
-    if (addPost) addPost(newPost)
-    onClose()
+    onPost(newPost)
   }
 
   const displayImage = localImageUrl ?? imageUrl
@@ -133,7 +130,7 @@ export const ReviewProductForm = ({ onClose }: ReviewProductFormProps) => {
       <h2 className="review-product-form__title">Review a product</h2>
       <button className="Popup__close" onClick={onClose}><X size={20} /></button>
 
-      {/* Campos principales del formulario */}
+      {/* Campos principales del formulario en dos columnas */}
       <div className="review-product-form__grid">
         <div className="review-product-form__col">
           {/* Paso uno con datos y foto */}
@@ -154,7 +151,7 @@ export const ReviewProductForm = ({ onClose }: ReviewProductFormProps) => {
                 {showSuggestions && (
                   <div className="review-product-form__suggestions">
                     {loadingApi && <p className="review-product-form__loading">Searching...</p>}
-                    {!loadingApi && apiError && <p className="review-product-form__loading">API not available — fill fields manually ✍️</p>}
+                    {!loadingApi && apiError && <p className="review-product-form__loading">API not available — fill fields manually</p>}
                     {!loadingApi && !apiError && suggestions.length === 0 && <p className="review-product-form__loading">No results — fill manually</p>}
                     {suggestions.map((s) => (
                       <button key={s.id} className="review-product-form__suggestion-item" onMouseDown={() => handleSelectSuggestion(s)}>
@@ -203,7 +200,7 @@ export const ReviewProductForm = ({ onClose }: ReviewProductFormProps) => {
         </div>
 
         <div className="review-product-form__col">
-          {/* Paso tres con la nota y la opinion */}
+          {/* Paso tres con la nota */}
           <div className="review-product-form__step">
             <div className="review-product-form__step-num">3</div>
             <div className="review-product-form__step-content">
@@ -218,17 +215,14 @@ export const ReviewProductForm = ({ onClose }: ReviewProductFormProps) => {
                     onMouseLeave={() => setHoverRating(0)}
                     aria-label={`${star} stars`}
                   >
-                    <Star
-                      size={32}
-                      color="#e0a800"
-                      fill={star <= (hoverRating || rating) ? '#e0a800' : 'none'}
-                    />
+                    <Star size={32} color="#e0a800" fill={star <= (hoverRating || rating) ? '#e0a800' : 'none'} />
                   </button>
                 ))}
               </div>
             </div>
           </div>
 
+          {/* Paso cuatro con la descripcion */}
           <div className="review-product-form__step">
             <div className="review-product-form__step-num">4</div>
             <div className="review-product-form__step-content">

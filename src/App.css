@@ -12,6 +12,12 @@
   overflow-y: auto;
 }
 
+/* Paginas de auth no tienen header ni navbar, ocupan toda la pantalla */
+.app__main--auth {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
 /* Desktop: sidebar left + header top */
 @media (min-width: 768px) {
   .app {
@@ -23,5 +29,10 @@
     padding-top: var(--header-height-desktop);
     padding-bottom: 0;
     flex: 1;
+  }
+
+  .app__main--auth {
+    margin-left: 0;
+    padding-top: 0;
   }
 }

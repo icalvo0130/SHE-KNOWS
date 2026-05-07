@@ -1,8 +1,8 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useContext } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import type { ProductPost, ProductCategory } from '../../types/Post'
-import { getAvgRating, formatRating } from '../../types/Post'
-import { initialPosts } from './productsData'
+import { getAvgRating, formatRating } from '../../types/Helpers'
+import { ProductsContext } from '../../context/Productscontext'
 import './Products.css'
 
 const slugToCategory = (slug: string): ProductCategory | null => {
@@ -16,9 +16,10 @@ const slugToCategory = (slug: string): ProductCategory | null => {
 }
 
 export const TopRated = () => {
-  // Lee la categoria desde la ruta
   const { category: categorySlug } = useParams<{ category: string }>()
   const navigate = useNavigate()
+  const { posts } = useContext(ProductsContext)!
+
   const category = slugToCategory(categorySlug ?? '')
 
   // Cambia entre ranking semanal y general
@@ -28,7 +29,7 @@ export const TopRated = () => {
   // Ordena los productos por nota segun la categoria y el periodo
   const ranked = useMemo(() => {
     if (!category) return []
-    const filtered = initialPosts.filter((p) => {
+    const filtered = posts.filter((p) => {
       if (p.category !== category) return false
       if (period === 'weekly') return Date.now() - p.createdAt <= ONE_WEEK_MS
       return true
@@ -50,10 +51,10 @@ export const TopRated = () => {
       }
     })
     return [...map.values()].sort((a, b) => b.avg - a.avg)
-  }, [category, period])
+  }, [category, period, posts])
 
   const top3 = ranked.slice(0, 3)
-  // Orden visual del podio
+  // Orden visual del podio: 2do, 1ro, 3ro
   const podiumOrder = [top3[1], top3[0], top3[2]].filter(Boolean)
   const podiumBars = [
     'top-rated-view__podium-bar--2',

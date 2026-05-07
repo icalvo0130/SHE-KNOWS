@@ -1,0 +1,143 @@
+.register {
+  min-height: 100vh;
+  background-color: #cc0000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 48px,
+    rgba(0, 0, 0, 0.06) 48px,
+    rgba(0, 0, 0, 0.06) 50px
+  );
+}
+
+.register__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 360px;
+}
+
+.register__logo {
+  width: 160px;
+  height: auto;
+  margin-bottom: 20px;
+  filter: brightness(0) saturate(100%) invert(92%) sepia(14%) saturate(300%) hue-rotate(340deg) brightness(107%) contrast(95%);
+}
+
+.register__title {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  color: var(--crema);
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.register__subtitle {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--crema);
+  margin-bottom: 32px;
+  text-align: center;
+  opacity: 0.9;
+}
+
+.register__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.register__field-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.register__input {
+  width: 100%;
+  padding: 13px 18px;
+  border-radius: 50px;
+  border: none;
+  outline: none;
+  background-color: rgba(255, 226, 204, 0.25);
+  color: var(--crema);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+}
+
+.register__input::placeholder {
+  color: rgba(255, 226, 204, 0.7);
+}
+
+.register__input--error {
+  border: 1.5px solid #ffb3b3;
+}
+
+.register__hint {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: rgba(255, 226, 204, 0.75);
+  padding-left: 14px;
+}
+
+.register__field-error {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: #ffcccc;
+  padding-left: 14px;
+}
+
+.register__btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 50px;
+  background-color: var(--crema);
+  color: var(--negro);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  margin-bottom: 20px;
+}
+
+.register__btn:hover {
+  opacity: 0.88;
+}
+
+.register__footer {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--crema);
+  opacity: 0.85;
+}
+
+.register__link {
+  background: none;
+  border: none;
+  color: var(--crema);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+@media (min-width: 768px) {
+  .register__card {
+    max-width: 400px;
+  }
+
+  .register__logo {
+    width: 180px;
+  }
+}

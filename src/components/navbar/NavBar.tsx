@@ -1,20 +1,26 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useContext } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Home, Flag, Plus, ShoppingBag, User, MessageSquare, Star } from 'lucide-react'
 import { GirlTalkForm } from '../PostForms/GirlTalkForm/GirlTalkForm'
 import { RateGuyForm } from '../PostForms/RateGuyForm/RateGuyForm'
 import { ReviewProductForm } from '../PostForms/Reviewproductform/Reviewproductform'
+import { GirlTalkContext } from '../../context/GirlTalkContext'
+import { MenReviewContext } from '../../context/Menreviewcontext'
+import { ProductsContext } from '../../context/Productscontext'
 import '../Popup/Popup.css'
 import './NavBar.css'
 
 type ActivePopup = 'girl-talk' | 'rate-guy' | 'review-product' | null
 
 export const NavBar = () => {
-  // Controla el menu y la ventana de crear post
   const [popupOpen, setPopupOpen] = useState(false)
   const [activePopup, setActivePopup] = useState<ActivePopup>(null)
   const location = useLocation()
   const popupRef = useRef<HTMLDivElement>(null)
+
+  const { addPost: addGirlTalkPost } = useContext(GirlTalkContext)!
+  const { addPost: addMenReviewPost } = useContext(MenReviewContext)!
+  const { addPost: addProductPost } = useContext(ProductsContext)!
 
   // Cierra el menu si se toca fuera de el
   useEffect(() => {
@@ -30,21 +36,13 @@ export const NavBar = () => {
 
   const isActive = (path: string) => location.pathname === path
 
-  // Abre el formulario que se elija
+  // Abre el formulario del tipo de post elegido
   const openPopup = (type: ActivePopup) => {
     setPopupOpen(false)
     setActivePopup(type)
   }
 
-  // Cierra cualquier ventana abierta
   const closePopup = () => setActivePopup(null)
-
-  // Recibe el nuevo post de Girl Talk
-  const handleGirlTalkPost = (text: string) => {
-    const addPost = (window as unknown as Record<string, unknown>).__addGirlTalkPost as ((t: string) => void) | undefined
-    if (addPost) addPost(text)
-    closePopup()
-  }
 
   return (
     <>
@@ -130,7 +128,10 @@ export const NavBar = () => {
       {activePopup === 'girl-talk' && (
         <div className="Popup-overlay" onClick={closePopup}>
           <div className="Popup" onClick={(e) => e.stopPropagation()}>
-            <GirlTalkForm onClose={closePopup} onPost={handleGirlTalkPost} />
+            <GirlTalkForm
+              onClose={closePopup}
+              onPost={(text) => { addGirlTalkPost(text); closePopup() }}
+            />
           </div>
         </div>
       )}
@@ -139,7 +140,7 @@ export const NavBar = () => {
       {activePopup === 'rate-guy' && (
         <div className="Popup-overlay" onClick={closePopup}>
           <div className="Popup" onClick={(e) => e.stopPropagation()}>
-            <RateGuyForm onClose={closePopup} />
+            <RateGuyForm onClose={closePopup} onPost={(post) => { addMenReviewPost(post); closePopup() }} />
           </div>
         </div>
       )}
@@ -148,7 +149,7 @@ export const NavBar = () => {
       {activePopup === 'review-product' && (
         <div className="Popup-overlay" onClick={closePopup}>
           <div className="Popup" onClick={(e) => e.stopPropagation()}>
-            <ReviewProductForm onClose={closePopup} />
+            <ReviewProductForm onClose={closePopup} onPost={(post) => { addProductPost(post); closePopup() }} />
           </div>
         </div>
       )}

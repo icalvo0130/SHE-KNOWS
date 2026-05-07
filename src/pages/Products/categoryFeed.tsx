@@ -1,10 +1,10 @@
-import { useState, useMemo } from 'react'
+import { useMemo, useContext } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Star } from 'lucide-react'
 import type { ProductPost, ProductCategory } from '../../types/Post'
-import { getAvgRating, getRandomColor, CATEGORIES, CATEGORY_ICONS } from '../../types/Post'
+import { CATEGORIES, CATEGORY_ICONS } from '../../types/Helpers'
 import { ProductCard } from '../../components/ProductsCard/ProductCard'
-import { initialPosts } from './productsData'
+import { ProductsContext } from '../../context/Productscontext'
 import topRatedImg from '../../assets/Topratedlogo.png'
 import './Products.css'
 
@@ -18,8 +18,6 @@ const slugToCategory = (slug: string): ProductCategory | null => {
   }
   return map[slug] ?? null
 }
-
-let nextCommentId = 200
 
 type SidebarProps = {
   tendencias: { post: ProductPost; avg: number }[]
@@ -51,55 +49,11 @@ const SidebarTendencias = ({ tendencias }: SidebarProps) => (
 )
 
 export const CategoryFeed = () => {
-  // Lee la categoria desde la ruta actual
   const { category: categorySlug } = useParams<{ category: string }>()
   const navigate = useNavigate()
+  const { posts, handleRate, handleComment, tendencias } = useContext(ProductsContext)!
+
   const category = slugToCategory(categorySlug ?? '')
-
-  // Productos que se van a mostrar en la lista
-  const [posts, setPosts] = useState<ProductPost[]>(initialPosts)
-
-  // Suma una nueva nota a un producto
-  const handleRate = (postId: number, stars: number) => {
-    setPosts((prev) =>
-      prev.map((p) =>
-        p.id === postId ? { ...p, communityRatings: [...p.communityRatings, stars] } : p
-      )
-    )
-  }
-
-  // Agrega un comentario al producto elegido
-  const handleComment = (postId: number, text: string) => {
-    setPosts((prev) =>
-      prev.map((p) =>
-        p.id === postId
-          ? {
-              ...p,
-              comments: [
-                ...p.comments,
-                { id: nextCommentId++, username: 'AnonymousCat', avatarColor: getRandomColor(), text },
-              ],
-            }
-          : p
-      )
-    )
-  }
-
-  // Busca los productos mas usados para mostrar el ranking lateral
-  const tendencias = useMemo(() => {
-    const map = new Map<string, { post: ProductPost; count: number; avg: number }>()
-    posts.forEach((p) => {
-      const key = `${p.productName}__${p.brand}`
-      const avg = getAvgRating(p)
-      if (!map.has(key)) {
-        map.set(key, { post: p, count: 1, avg })
-      } else {
-        const prev = map.get(key)!
-        map.set(key, { post: prev.post, avg: (prev.avg * prev.count + avg) / (prev.count + 1), count: prev.count + 1 })
-      }
-    })
-    return [...map.values()].sort((a, b) => b.count - a.count).slice(0, 4)
-  }, [posts])
 
   // Deja ver solo los productos de la categoria actual
   const filteredPosts = useMemo(
@@ -115,7 +69,10 @@ export const CategoryFeed = () => {
             {/* Mensaje cuando la categoria no existe */}
             <p style={{ textAlign: 'center', color: '#aaa', padding: '40px 0' }}>
               Category not found.{' '}
-              <button onClick={() => navigate('/products')} style={{ color: 'var(--rojo)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
+              <button
+                onClick={() => navigate('/products')}
+                style={{ color: 'var(--rojo)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}
+              >
                 Go back
               </button>
             </p>
@@ -163,12 +120,12 @@ export const CategoryFeed = () => {
             })}
           </div>
 
-          {/* Productos que pertenecen a esta categoria */}
+          {/* Productos de esta categoria */}
           {filteredPosts.map((post) => (
             <ProductCard key={post.id} post={post} onRate={handleRate} onComment={handleComment} />
           ))}
 
-          {/* Mensaje cuando no hay resultados en la categoria */}
+          {/* Mensaje cuando no hay resultados en esta categoria */}
           {filteredPosts.length === 0 && (
             <p style={{ textAlign: 'center', color: '#aaa', padding: '40px 0' }}>
               No posts yet in {category}. Be the first! ✨

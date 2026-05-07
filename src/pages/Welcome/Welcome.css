@@ -1,0 +1,89 @@
+.welcome {
+  min-height: 100vh;
+  background-color: #cc0000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  /* Fondo con rayas verticales sutiles igual que el diseño */
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 48px,
+    rgba(0, 0, 0, 0.06) 48px,
+    rgba(0, 0, 0, 0.06) 50px
+  );
+}
+
+.welcome__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 360px;
+}
+
+.welcome__logo {
+  width: 180px;
+  height: auto;
+  margin-bottom: 24px;
+  /* El logo en el diseno es de color crema sobre rojo */
+  filter: brightness(0) saturate(100%) invert(92%) sepia(14%) saturate(300%) hue-rotate(340deg) brightness(107%) contrast(95%);
+}
+
+.welcome__title {
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  color: var(--crema);
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.welcome__subtitle {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--crema);
+  margin-bottom: 40px;
+  text-align: center;
+  opacity: 0.9;
+}
+
+.welcome__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+.welcome__btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 50px;
+  background-color: var(--crema);
+  color: var(--negro);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.welcome__btn:hover {
+  opacity: 0.88;
+}
+
+/* Desktop: centrado igual que en celular pero con la tarjeta mas compacta */
+@media (min-width: 768px) {
+  .welcome__card {
+    max-width: 400px;
+  }
+
+  .welcome__logo {
+    width: 200px;
+  }
+
+  .welcome__title {
+    font-size: 2.8rem;
+  }
+}

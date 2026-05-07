@@ -1,22 +1,16 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search } from 'lucide-react'
+import { Search, Star } from 'lucide-react'
 import type { ProductPost } from '../../types/Post'
-import { getAvgRating, getRandomColor, CATEGORIES, CATEGORY_ICONS } from '../../types/Post'
+import { CATEGORIES, CATEGORY_ICONS } from '../../types/Helpers'
 import { ProductCard } from '../../components/ProductsCard/ProductCard'
-import { initialPosts } from './productsData'
+import { ProductsContext } from '../../context/Productscontext'
 import productsBanner from '../../assets/Bannerproductspage.png'
 import './Products.css'
-
-let nextPostId = initialPosts.length + 1
-let nextCommentId = 20
-let sharedPosts: ProductPost[] = [...initialPosts]
 
 type SidebarProps = {
   tendencias: { post: ProductPost; avg: number }[]
 }
-
-import { Star } from 'lucide-react'
 
 const SidebarTendencias = ({ tendencias }: SidebarProps) => (
   <aside className="products__sidebar">
@@ -50,67 +44,11 @@ const SidebarTendencias = ({ tendencias }: SidebarProps) => (
 )
 
 export const Products = () => {
-  // Datos de la pagina y texto de busqueda
   const navigate = useNavigate()
-  const [posts, setPosts] = useState<ProductPost[]>(sharedPosts)
+  const { posts, handleRate, handleComment, tendencias } = useContext(ProductsContext)!
   const [search, setSearch] = useState('')
 
-  // Permite recibir nuevos productos desde el formulario
-  if (typeof window !== 'undefined') {
-    (window as unknown as Record<string, unknown>).__addProductPost = (post: ProductPost) => {
-      const newPost = { ...post, id: nextPostId++ }
-      sharedPosts = [newPost, ...sharedPosts]
-      setPosts([...sharedPosts])
-    }
-  }
-
-  // Suma una nueva nota a un producto
-  const handleRate = (postId: number, stars: number) => {
-    setPosts((prev) =>
-      prev.map((p) =>
-        p.id === postId ? { ...p, communityRatings: [...p.communityRatings, stars] } : p
-      )
-    )
-  }
-
-  // Agrega un comentario al producto elegido
-  const handleComment = (postId: number, text: string) => {
-    setPosts((prev) =>
-      prev.map((p) =>
-        p.id === postId
-          ? {
-              ...p,
-              comments: [
-                ...p.comments,
-                { id: nextCommentId++, username: 'AnonymousCat', avatarColor: getRandomColor(), text },
-              ],
-            }
-          : p
-      )
-    )
-  }
-
-  // Busca los productos mas repetidos y mejor valorados
-  const tendencias = useMemo(() => {
-    const map = new Map<string, { post: ProductPost; count: number; avg: number }>()
-    posts.forEach((p) => {
-      const key = `${p.productName}__${p.brand}`
-      const avg = getAvgRating(p)
-      if (!map.has(key)) {
-        map.set(key, { post: p, count: 1, avg })
-      } else {
-        const prev = map.get(key)!
-        map.set(key, {
-          post: prev.post,
-          avg: (prev.avg * prev.count + avg) / (prev.count + 1),
-          count: prev.count + 1,
-        })
-      }
-    })
-    return [...map.values()].sort((a, b) => b.count - a.count).slice(0, 4)
-  }, [posts])
-
-  // Filtra lo que se ve en pantalla segun la busqueda
+  // Filtra los productos visibles segun el texto de busqueda
   const visiblePosts = useMemo(() => {
     if (!search) return posts
     return posts.filter(

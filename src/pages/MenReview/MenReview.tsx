@@ -1,95 +1,22 @@
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 import { Search, Flag } from 'lucide-react'
-import type { MenReviewPost } from '../../types/Post'
+import { MenReviewContext } from '../../context/Menreviewcontext'
 import './MenReview.css'
-
-const PLACEHOLDER_IMAGE_1 = 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=600&q=80'
-const PLACEHOLDER_IMAGE_2 = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80'
-const PLACEHOLDER_IMAGE_3 = 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&q=80'
-
-const initialPosts: MenReviewPost[] = [
-  {
-    id: 1,
-    username: 'IvoryPulse',
-    avatarColor: '#fd9a3e',
-    manName: 'Sebastian Rojas',
-    description: 'Very charismatic and confident in social settings, but inconsistent when it comes to communication. He tends to disappear for days and then come back as if nothing happened. It creates unnecessary confusion.',
-    imageUrl: PLACEHOLDER_IMAGE_1,
-    redFlags: 5,
-    greenFlags: 12,
-    userVote: null,
-  },
-  {
-    id: 2,
-    username: 'IvoryPulse',
-    avatarColor: '#fd9a3e',
-    manName: 'Sebastian Rojas',
-    description: 'Super attentive at first. Remembered every little detail I told him. But then completely changed after the third date. Classic situationship energy.',
-    imageUrl: PLACEHOLDER_IMAGE_2,
-    redFlags: 8,
-    greenFlags: 3,
-    userVote: null,
-  },
-  {
-    id: 3,
-    username: 'VelvetLuna',
-    avatarColor: '#fd6fae',
-    manName: 'Mateo Vargas',
-    description: 'The most thoughtful person I have ever met. Always showed up, always communicated. Genuinely one of the good ones.',
-    imageUrl: PLACEHOLDER_IMAGE_3,
-    redFlags: 1,
-    greenFlags: 20,
-    userVote: null,
-  },
-]
-
-const getTopByGreen = (posts: MenReviewPost[]) =>
-  [...posts].sort((a, b) => b.greenFlags - a.greenFlags).slice(0, 4)
-
-const getTopByRed = (posts: MenReviewPost[]) =>
-  [...posts].sort((a, b) => b.redFlags - a.redFlags).slice(0, 4)
 
 const FILTERS = ['Todos', 'Recientes', 'Green flags', 'Red flags']
 
+const getTopByGreen = (posts: { greenFlags: number; id: number; manName: string }[]) =>
+  [...posts].sort((a, b) => b.greenFlags - a.greenFlags).slice(0, 4)
+
+const getTopByRed = (posts: { redFlags: number; id: number; manName: string }[]) =>
+  [...posts].sort((a, b) => b.redFlags - a.redFlags).slice(0, 4)
+
 export const MenReview = () => {
-  // Datos que se muestran en la pagina
-  const [posts, setPosts] = useState<MenReviewPost[]>(initialPosts)
+  const { posts, handleVote } = useContext(MenReviewContext)!
   const [search, setSearch] = useState('')
   const [activeFilter, setActiveFilter] = useState('Todos')
 
-  // Permite crear un post desde el formulario
-  if (typeof window !== 'undefined') {
-    (window as unknown as Record<string, unknown>).__addMenReviewPost = (post: MenReviewPost) => {
-      setPosts((prev) => [post, ...prev])
-    }
-  }
-
-  // Cambia el voto de una tarjeta
-  const handleVote = (postId: number, vote: 'red' | 'green') => {
-    setPosts((prev) =>
-      prev.map((post) => {
-        if (post.id !== postId) return post
-        if (post.userVote === vote) {
-          return {
-            ...post,
-            userVote: null,
-            redFlags: vote === 'red' ? post.redFlags - 1 : post.redFlags,
-            greenFlags: vote === 'green' ? post.greenFlags - 1 : post.greenFlags,
-          }
-        }
-        const wasRed = post.userVote === 'red'
-        const wasGreen = post.userVote === 'green'
-        return {
-          ...post,
-          userVote: vote,
-          redFlags: vote === 'red' ? post.redFlags + 1 : wasRed ? post.redFlags - 1 : post.redFlags,
-          greenFlags: vote === 'green' ? post.greenFlags + 1 : wasGreen ? post.greenFlags - 1 : post.greenFlags,
-        }
-      })
-    )
-  }
-
-  // Filtra por texto y por tipo de lista
+  // Filtra por texto de busqueda y por tipo de filtro activo
   const filteredPosts = posts.filter((post) => {
     const matchesSearch = post.manName.toLowerCase().includes(search.toLowerCase())
     if (activeFilter === 'Green flags') return matchesSearch && post.greenFlags > post.redFlags

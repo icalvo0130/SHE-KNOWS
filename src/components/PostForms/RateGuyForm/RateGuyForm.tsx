@@ -1,14 +1,15 @@
 import { useState, useRef } from 'react'
 import { Upload, X, Flag } from 'lucide-react'
+import type { MenReviewPost } from '../../../types/Post'
 import '../../Popup/Popup.css'
 import './RateGuyForm.css'
 
 type RateGuyFormProps = {
   onClose: () => void
+  onPost: (post: MenReviewPost) => void
 }
 
-export const RateGuyForm = ({ onClose }: RateGuyFormProps) => {
-  // Datos basicos del perfil que se va a valorar
+export const RateGuyForm = ({ onClose, onPost }: RateGuyFormProps) => {
   const [name, setName] = useState('')
   const [experience, setExperience] = useState('')
   const [flag, setFlag] = useState<'red' | 'green' | null>(null)
@@ -29,10 +30,10 @@ export const RateGuyForm = ({ onClose }: RateGuyFormProps) => {
     reader.readAsDataURL(file)
   }
 
-  // Crea el post y lo manda a la pagina de Men Review
+  // Crea el post y lo envia al contexto a traves de la prop onPost
   const handlePost = () => {
-    if (!canPost) return
-    const newPost = {
+    if (!canPost || !flag) return
+    const newPost: MenReviewPost = {
       id: Date.now(),
       username: 'AnonymousCat',
       avatarColor: '#fd6fae',
@@ -43,9 +44,7 @@ export const RateGuyForm = ({ onClose }: RateGuyFormProps) => {
       greenFlags: flag === 'green' ? 1 : 0,
       userVote: flag,
     }
-    const addPost = (window as unknown as Record<string, unknown>).__addMenReviewPost as ((p: typeof newPost) => void) | undefined
-    if (addPost) addPost(newPost)
-    onClose()
+    onPost(newPost)
   }
 
   return (
@@ -61,7 +60,7 @@ export const RateGuyForm = ({ onClose }: RateGuyFormProps) => {
       <h2 className="rate-guy-form__title">Rate a guy</h2>
       <button className="Popup__close" onClick={onClose}><X size={20} /></button>
 
-      {/* Paso uno con el nombre y la experiencia */}
+      {/* Paso uno con el nombre */}
       <div className="rate-guy-form__step">
         <div className="rate-guy-form__step-num">1</div>
         <div className="rate-guy-form__step-content">
@@ -70,7 +69,7 @@ export const RateGuyForm = ({ onClose }: RateGuyFormProps) => {
         </div>
       </div>
 
-      {/* Paso dos para subir una foto */}
+      {/* Paso dos con la experiencia */}
       <div className="rate-guy-form__step">
         <div className="rate-guy-form__step-num">2</div>
         <div className="rate-guy-form__step-content">
@@ -79,7 +78,7 @@ export const RateGuyForm = ({ onClose }: RateGuyFormProps) => {
         </div>
       </div>
 
-      {/* Paso tres para elegir el tipo de flag */}
+      {/* Paso tres para subir una foto */}
       <div className="rate-guy-form__step">
         <div className="rate-guy-form__step-num">3</div>
         <div className="rate-guy-form__step-content">
@@ -100,6 +99,7 @@ export const RateGuyForm = ({ onClose }: RateGuyFormProps) => {
         </div>
       </div>
 
+      {/* Paso cuatro para elegir el tipo de flag */}
       <div className="rate-guy-form__step">
         <div className="rate-guy-form__step-num">4</div>
         <div className="rate-guy-form__step-content">
