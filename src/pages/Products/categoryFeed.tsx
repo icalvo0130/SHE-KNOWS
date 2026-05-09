@@ -1,16 +1,14 @@
 import { useState, useMemo, useContext } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Star, Search } from 'lucide-react'
-import type { ProductPost, ProductCategory } from '../../types/Post'
+import type { ProductCategory } from '../../types/Post'
 import { CATEGORIES, CATEGORY_ICONS } from '../../types/Helpers'
 import { ProductCard } from '../../components/ProductsCard/ProductCard'
 import { ProductsContext } from '../../context/Productscontext'
 import topRatedImg from '../../assets/Topratedlogo.png'
 import './Products.css'
 
-
-
-// Convierte la ruta en el nombre de la categoria
+// Convierte el nombre de la ruta al nombre de la categoría usado en la app
 const slugToCategory = (slug: string): ProductCategory | null => {
   const map: Record<string, ProductCategory> = {
     'make-up': 'Make-Up',
@@ -27,11 +25,14 @@ export const CategoryFeed = () => {
   const { posts, handleComment, deletePost, tendencias } = useContext(ProductsContext)!
   const [search, setSearch] = useState('')
 
+  // Traduce el nombre de la ruta a la categoria correspondiente
   const category = slugToCategory(categorySlug ?? '')
 
-  // Deja ver solo los productos de la categoria actual, filtrados por busqueda
+  // Filtra los posts para la categoria actual y por el texto de busqueda
   const filteredPosts = useMemo(() => {
+    // Si hay categoria valida, filtra por ella, sino lista vacia
     let currentPosts = category ? posts.filter((p) => p.category === category) : []
+    // Si hay texto de busqueda, filtra tambien por nombre o marca
     if (search) {
       currentPosts = currentPosts.filter(
         (p) =>

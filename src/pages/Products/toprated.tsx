@@ -5,6 +5,7 @@ import { formatRating } from '../../types/Helpers'
 import { ProductsContext } from '../../context/Productscontext'
 import './Products.css'
 
+// Convierte el slug de la ruta al nombre de categoria usado internamente
 const slugToCategory = (slug: string): ProductCategory | null => {
   const map: Record<string, ProductCategory> = {
     'make-up': 'Make-Up',
@@ -26,7 +27,9 @@ export const TopRated = () => {
   const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000
 
   const ranked = useMemo(() => {
+    // Si no hay categoria valida, no hay ranking
     if (!category) return []
+    // Filtra posts por categoria y por periodo (ultima semana o todo el tiempo)
     const filtered = posts.filter((p) => {
       if (p.category !== category) return false
       if (period === 'weekly') {
@@ -36,22 +39,27 @@ export const TopRated = () => {
       return true
     })
 
+    // Agrupa por producto (nombre + marca) para promediar ratings de distintos posts
     const map = new Map<string, { post: ProductPost; avg: number; count: number }>()
     filtered.forEach((p) => {
       const key = `${p.productName}__${p.brand}`
-      // FIX: antes se llamaba getAvgRating(p) con un solo arg — ahora pasa los 3 correctos
+      // Si no hay votos comunitarios, usamos el rating del autor; si los hay, usamos avgRating
       const avg = p.communityRatingCount === 0 ? p.userRating : p.avgRating
       if (!map.has(key)) {
+        // Primera vez que vemos este producto: inicializa total y contador
         map.set(key, { post: p, avg, count: 1 })
       } else {
+        // Si ya existe, recalcula el promedio acumulado
         const prev = map.get(key)!
         map.set(key, {
           post: prev.post,
+          // recalcula promedio ponderado por contador previo
           avg: (prev.avg * prev.count + avg) / (prev.count + 1),
           count: prev.count + 1,
         })
       }
     })
+    // Convierte a array y ordena por promedio descendente
     return [...map.values()].sort((a, b) => b.avg - a.avg)
   }, [category, period, posts])
 
