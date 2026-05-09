@@ -1,90 +1,119 @@
-import { useState } from 'react'
-import { MessageSquare, Heart } from 'lucide-react'
+import { useState, useContext } from 'react'
+import { Heart, MessageSquare, Send, Trash2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import type { GirlTalkPost } from '../../types/Post'
+import { AuthContext } from '../../context/AuthContext'
 import './PostCard.css'
 
 type PostCardProps = {
   post: GirlTalkPost
-  onLike: (id: number) => void
-  onComment: (id: number, text: string) => void
+  onLike: (id: string) => Promise<void>
+  onComment: (postId: string, text: string) => Promise<void>
+  onDelete: (id: string) => Promise<void>
 }
 
-export const PostCard = ({ post, onLike, onComment }: PostCardProps) => {
-  // Muestra o esconde los comentarios
+export const PostCard = ({ post, onLike, onComment, onDelete }: PostCardProps) => {
+  const auth = useContext(AuthContext)
+  const navigate = useNavigate()
   const [showComments, setShowComments] = useState(false)
-  // Texto que escribe la usuaria antes de publicar
   const [commentText, setCommentText] = useState('')
 
-  // Envia un comentario si el texto no esta vacio
-  const handleComment = () => {
-    if (commentText.trim() === '') return
-    onComment(post.id, commentText.trim())
+  const handleSendComment = async () => {
+    if (!commentText.trim()) return
+    await onComment(post.id, commentText.trim())
     setCommentText('')
   }
 
-  // Permite publicar con Enter
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') handleComment()
+  // Navega al perfil de la usuaria que hizo el post
+  const handleUsernameClick = () => {
+    if (post.user_id === auth?.profile?.id) {
+      navigate('/profile')
+    } else {
+      navigate(`/profile/${post.user_id}`)
+    }
   }
 
+  const handleDelete = async () => {
+    if (!window.confirm('Delete this post?')) return
+    await onDelete(post.id)
+  }
+
+  const isOwner = post.user_id === auth?.profile?.id
+
   return (
-    <article className="post-card">
-      {/* Cabecera del mensaje */}
+    <div className="post-card">
       <div className="post-card__header">
-        <div className="post-card__avatar" style={{ backgroundColor: post.avatarColor }} />
-        <div className="post-card__info">
-          <p className="post-card__username">{post.username}</p>
-          <p className="post-card__text">{post.text}</p>
-        </div>
+        {post.avatar_url ? (
+          <img src={post.avatar_url} alt={post.username} className="post-card__avatar" />
+        ) : (
+          <div className="post-card__avatar" />
+        )}
+        <button className="post-card__username-btn" onClick={handleUsernameClick}>
+          {post.username}
+        </button>
+        {isOwner && (
+          <button className="post-card__delete-btn" onClick={handleDelete} aria-label="Delete post">
+            <Trash2 size={15} />
+          </button>
+        )}
       </div>
 
-      {/* Acciones para comentar y dar like */}
+      <p className="post-card__text">{post.text}</p>
+
       <div className="post-card__actions">
         <button
-          className="post-card__action-btn"
-          onClick={() => setShowComments((prev) => !prev)}
-        >
-          <MessageSquare size={18} />
-          {post.comments.length}
-        </button>
-        <button
-          className={`post-card__action-btn ${post.liked ? 'liked' : ''}`}
+          className={`post-card__action ${post.liked ? 'liked' : ''}`}
           onClick={() => onLike(post.id)}
         >
-          <Heart size={18} fill={post.liked ? 'currentColor' : 'none'} />
+          <Heart size={16} fill={post.liked ? 'currentColor' : 'none'} />
           {post.likes}
+        </button>
+        <button
+          className="post-card__action"
+          onClick={() => setShowComments((prev) => !prev)}
+        >
+          <MessageSquare size={16} />
+          {post.comments.length}
         </button>
       </div>
 
       {showComments && (
-        <>
-          {/* Lista de comentarios ya guardados */}
-          {post.comments.length > 0 && (
-            <div className="post-card__comments">
-              {post.comments.map((comment) => (
-                <div key={comment.id} className="post-card__comment">
-                  <div className="post-card__comment-avatar" style={{ backgroundColor: comment.avatarColor }} />
-                  <div className="post-card__comment-body">
-                    <p className="post-card__comment-username">{comment.username}</p>
-                    <p className="post-card__comment-text">{comment.text}</p>
-                  </div>
-                </div>
-              ))}
+        <div className="post-card__comments">
+          {post.comments.map((c) => (
+            <div key={c.id} className="post-card__comment">
+              {c.avatar_url ? (
+                <img src={c.avatar_url} alt={c.username} className="post-card__comment-avatar" />
+              ) : (
+                <div className="post-card__comment-avatar" />
+              )}
+              <div className="post-card__comment-body">
+                <span className="post-card__comment-username">{c.username}</span>
+                <p className="post-card__comment-text">{c.text}</p>
+              </div>
+            </div>
+          ))}
+
+          {auth?.profile && (
+            <div className="post-card__comment-input">
+              {auth.profile.avatar_url ? (
+                <img src={auth.profile.avatar_url} alt={auth.profile.username} className="post-card__comment-avatar" />
+              ) : (
+                <div className="post-card__comment-avatar" />
+              )}
+              <input
+                type="text"
+                placeholder="Write a comment..."
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleSendComment() }}
+              />
+              <button className="post-card__comment-send" onClick={handleSendComment}>
+                <Send size={16} />
+              </button>
             </div>
           )}
-          {/* Campo para escribir un comentario nuevo */}
-          <div className="post-card__comment-input">
-            <input
-              type="text"
-              placeholder="Spill your wisdom..."
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
-            <button onClick={handleComment}>Post</button>
-          </div>
-        </>
+        </div>
       )}
-    </article>
+    </div>
   )
 }

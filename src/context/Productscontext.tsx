@@ -1,129 +1,198 @@
-import { createContext, useState, useMemo } from 'react'
+import { createContext, useState, useEffect, useContext, useMemo } from 'react'
+import { supabase } from '../data/supabase'
+import { AuthContext } from './AuthContext'
 import type { ProductPost, ProductComment } from '../types/Post'
-import { getAvgRating, getRandomColor } from '../types/Helpers'
 
-// Datos iniciales de productos de ejemplo
-const NOW = Date.now()
-const ONE_WEEK = 7 * 24 * 60 * 60 * 1000
-
-const initialPosts: ProductPost[] = [
-  {
-    id: 1,
-    username: 'SoftVenom',
-    avatarColor: '#fc007b',
-    productName: 'Fit Me Matte + Poreless Foundation',
-    brand: 'Maybelline',
-    imageUrl: 'https://images.unsplash.com/photo-1586495777744-4e6232bf2f2e?w=600&q=80',
-    category: 'Make-Up',
-    userRating: 3,
-    communityRatings: [4, 3, 4],
-    description: 'Buena cobertura pero ligeramente oxidado después de unas horas.',
-    comments: [],
-    createdAt: NOW - 2 * 24 * 60 * 60 * 1000,
-  },
-  {
-    id: 2,
-    username: 'VelvetLuna',
-    avatarColor: '#fd6fae',
-    productName: 'Fit Me Matte + Poreless Foundation',
-    brand: 'Maybelline',
-    imageUrl: 'https://images.unsplash.com/photo-1586495777744-4e6232bf2f2e?w=600&q=80',
-    category: 'Make-Up',
-    userRating: 4,
-    communityRatings: [5, 4],
-    description: 'Me encanta la textura, dura todo el día sin retoques.',
-    comments: [],
-    createdAt: NOW - 10 * 24 * 60 * 60 * 1000,
-  },
-  {
-    id: 3,
-    username: 'CherryOracle',
-    avatarColor: '#c60017',
-    productName: 'Yoga Leggings High Waist',
-    brand: 'Gymshark',
-    imageUrl: 'https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600&q=80',
-    category: 'Gym',
-    userRating: 5,
-    communityRatings: [5, 5, 4],
-    description: 'Perfectos para el gym, no se transparentan y aguantan cualquier ejercicio.',
-    comments: [],
-    createdAt: NOW - ONE_WEEK - 1000,
-  },
-]
-
-// Tipado del contexto
 type ProductsContextType = {
   posts: ProductPost[]
-  addPost: (post: ProductPost) => void
-  handleRate: (postId: number, stars: number) => void
-  handleComment: (postId: number, text: string) => void
+  loading: boolean
+  addPost: (post: Omit<ProductPost, 'id' | 'user_id' | 'username' | 'avatar_url' | 'avgRating' | 'communityRatingCount' | 'comments' | 'createdAt'>) => Promise<void>
+  handleComment: (postId: string, text: string) => Promise<void>
+  deletePost: (id: string) => Promise<void>
   tendencias: { post: ProductPost; avg: number }[]
 }
 
-// Creacion del contexto
 export const ProductsContext = createContext<ProductsContextType | null>(null)
 
-let nextId = initialPosts.length + 1
-let nextCommentId = 20
+// Convierte una fila de la vista product_feed al tipo local
+const mapRow = (row: Record<string, unknown>): ProductPost => ({
+  id: row.id as string,
+  user_id: row.user_id as string,
+  username: row.username as string,
+  avatar_url: row.avatar_url as string,
+  productName: row.product_name as string,
+  brand: row.brand as string,
+  imageUrl: (row.image_url as string) ?? '',
+  category: row.category as ProductPost['category'],
+  userRating: row.user_rating as number,
+  avgRating: parseFloat((row.avg_rating as string) ?? '0'),
+  communityRatingCount: (row.community_rating_count as number) ?? 0,
+  description: row.description as string,
+  comments: [],
+  createdAt: row.created_at as string,
+})
 
-// Provider que envuelve las paginas que necesitan acceso a los productos
 export const ProductsProvider = ({ children }: { children: React.ReactNode }) => {
-  const [posts, setPosts] = useState<ProductPost[]>(initialPosts)
+  const [posts, setPosts] = useState<ProductPost[]>([])
+  const [loading, setLoading] = useState(true)
+  const auth = useContext(AuthContext)
 
-  // Agrega un nuevo producto al inicio de la lista
-  const addPost = (post: ProductPost) => {
-    const newPost = { ...post, id: nextId++ }
+  useEffect(() => {
+    const loadPosts = async () => {
+      setLoading(true)
+
+      const { data: feedData, error: feedError } = await supabase
+        .from('product_feed')
+        .select('*')
+
+      if (feedError) {
+        console.error('Error loading products feed:', feedError)
+        setLoading(false)
+        return
+      }
+
+      // Carga los comentarios de cada producto
+      const enriched: ProductPost[] = await Promise.all(
+        (feedData as Record<string, unknown>[]).map(async (row) => {
+          const post = mapRow(row)
+
+          const { data: commentsData } = await supabase
+            .from('product_comments')
+            .select('id, text, created_at, profiles(username, avatar_url)')
+            .eq('post_id', post.id)
+            .order('created_at', { ascending: true })
+
+          post.comments = ((commentsData as Record<string, unknown>[]) ?? []).map((c) => {
+            const profile = c.profiles as Record<string, string> | null
+            return {
+              id: c.id as string,
+              username: profile?.username ?? 'unknown',
+              avatar_url: profile?.avatar_url ?? '',
+              text: c.text as string,
+              created_at: c.created_at as string,
+            } as ProductComment
+          })
+
+          return post
+        })
+      )
+
+      setPosts(enriched)
+      setLoading(false)
+    }
+
+    loadPosts()
+  }, [auth?.profile?.id])
+
+  // Crea un nuevo post de producto en Supabase
+  const addPost = async (
+    postData: Omit<ProductPost, 'id' | 'user_id' | 'username' | 'avatar_url' | 'avgRating' | 'communityRatingCount' | 'comments' | 'createdAt'>
+  ) => {
+    if (!auth?.profile) return
+
+    const { data, error } = await supabase
+      .from('product_posts')
+      .insert({
+        user_id: auth.profile.id,
+        product_name: postData.productName,
+        brand: postData.brand,
+        image_url: postData.imageUrl,
+        category: postData.category,
+        user_rating: postData.userRating,
+        description: postData.description,
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error creating product post:', error)
+      return
+    }
+
+    const newPost: ProductPost = {
+      id: (data as Record<string, unknown>).id as string,
+      user_id: auth.profile.id,
+      username: auth.profile.username,
+      avatar_url: auth.profile.avatar_url,
+      productName: postData.productName,
+      brand: postData.brand,
+      imageUrl: postData.imageUrl,
+      category: postData.category,
+      userRating: postData.userRating,
+      avgRating: postData.userRating,
+      communityRatingCount: 0,
+      description: postData.description,
+      comments: [],
+      createdAt: (data as Record<string, unknown>).created_at as string,
+    }
+
     setPosts((prev) => [newPost, ...prev])
   }
 
-  // Agrega una calificacion de la comunidad a un producto
-  const handleRate = (postId: number, stars: number) => {
-    setPosts((prev) =>
-      prev.map((p) =>
-        p.id === postId ? { ...p, communityRatings: [...p.communityRatings, stars] } : p
-      )
-    )
-  }
-
   // Agrega un comentario a un producto especifico
-  const handleComment = (postId: number, text: string) => {
-    const newComment: ProductComment = {
-      id: nextCommentId++,
-      username: 'AnonymousCat',
-      avatarColor: getRandomColor(),
-      text,
+  const handleComment = async (postId: string, text: string) => {
+    if (!auth?.profile) return
+
+    const { data, error } = await supabase
+      .from('product_comments')
+      .insert({ post_id: postId, user_id: auth.profile.id, text })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error adding comment:', error)
+      return
     }
+
+    const newComment: ProductComment = {
+      id: (data as Record<string, unknown>).id as string,
+      username: auth.profile.username,
+      avatar_url: auth.profile.avatar_url,
+      text,
+      created_at: (data as Record<string, unknown>).created_at as string,
+    }
+
     setPosts((prev) =>
       prev.map((p) =>
-        p.id === postId
-          ? { ...p, comments: [...p.comments, newComment] }
-          : p
+        p.id === postId ? { ...p, comments: [...p.comments, newComment] } : p
       )
     )
   }
 
-  // Calcula los productos mas repetidos y mejor valorados para el sidebar
+  // Elimina un post de producto propio de Supabase y del estado local
+  const deletePost = async (id: string) => {
+    const { error } = await supabase
+      .from('product_posts')
+      .delete()
+      .eq('id', id)
+    if (error) { console.error('Error deleting product post:', error); return }
+    setPosts((prev) => prev.filter((p) => p.id !== id))
+  }
+
+  // Calcula las tendencias: agrupa por nombre+marca y promedia el userRating de cada post
   const tendencias = useMemo(() => {
-    const map = new Map<string, { post: ProductPost; count: number; avg: number }>()
+    const map = new Map<string, { post: ProductPost; total: number; count: number }>()
     posts.forEach((p) => {
       const key = `${p.productName}__${p.brand}`
-      const avg = getAvgRating(p)
       if (!map.has(key)) {
-        map.set(key, { post: p, count: 1, avg })
+        map.set(key, { post: p, total: p.userRating, count: 1 })
       } else {
         const prev = map.get(key)!
         map.set(key, {
           post: prev.post,
-          avg: (prev.avg * prev.count + avg) / (prev.count + 1),
+          total: prev.total + p.userRating,
           count: prev.count + 1,
         })
       }
     })
-    return [...map.values()].sort((a, b) => b.count - a.count).slice(0, 4)
+    return [...map.values()]
+      .map((v) => ({ post: v.post, avg: v.total / v.count }))
+      .sort((a, b) => b.avg - a.avg)
+      .slice(0, 4)
   }, [posts])
 
   return (
-    <ProductsContext.Provider value={{ posts, addPost, handleRate, handleComment, tendencias }}>
+    <ProductsContext.Provider value={{ posts, loading, addPost, deletePost, handleComment, tendencias }}>
       {children}
     </ProductsContext.Provider>
   )

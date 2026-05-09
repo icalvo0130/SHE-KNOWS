@@ -497,3 +497,21 @@
 
   .men-review__rank-item-count svg { width: 14px; height: 14px; }
 }
+/* Delete button - solo visible para la dueña del post */
+.review-card__delete-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #aaa;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s, background 0.2s;
+}
+
+.review-card__delete-btn:hover {
+  color: #e53935;
+  background: rgba(229, 57, 53, 0.08);
+}

@@ -1,22 +1,25 @@
 import { useState, useContext } from 'react'
-import { Search, Flag } from 'lucide-react'
+import { Search, Flag, Trash2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { MenReviewContext } from '../../context/Menreviewcontext'
+import { AuthContext } from '../../context/AuthContext'
 import './MenReview.css'
 
 const FILTERS = ['Todos', 'Recientes', 'Green flags', 'Red flags']
 
-const getTopByGreen = (posts: { greenFlags: number; id: number; manName: string }[]) =>
+const getTopByGreen = (posts: { greenFlags: number; id: string; manName: string }[]) =>
   [...posts].sort((a, b) => b.greenFlags - a.greenFlags).slice(0, 4)
 
-const getTopByRed = (posts: { redFlags: number; id: number; manName: string }[]) =>
+const getTopByRed = (posts: { redFlags: number; id: string; manName: string }[]) =>
   [...posts].sort((a, b) => b.redFlags - a.redFlags).slice(0, 4)
 
 export const MenReview = () => {
-  const { posts, handleVote } = useContext(MenReviewContext)!
+  const { posts, handleVote, deletePost } = useContext(MenReviewContext)!
+  const auth = useContext(AuthContext)
+  const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [activeFilter, setActiveFilter] = useState('Todos')
 
-  // Filtra por texto de busqueda y por tipo de filtro activo
   const filteredPosts = posts.filter((post) => {
     const matchesSearch = post.manName.toLowerCase().includes(search.toLowerCase())
     if (activeFilter === 'Green flags') return matchesSearch && post.greenFlags > post.redFlags
@@ -27,9 +30,21 @@ export const MenReview = () => {
   const topGreen = getTopByGreen(posts)
   const topRed = getTopByRed(posts)
 
+  const handleUsernameClick = (postUserId: string) => {
+    if (postUserId === auth?.profile?.id) {
+      navigate('/profile')
+    } else {
+      navigate(`/profile/${postUserId}`)
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('Delete this review?')) return
+    await deletePost(id)
+  }
+
   return (
     <div className="men-review">
-      {/* Barra de busqueda */}
       <div className="men-review__search-bar">
         <div className="men-review__search-input-wrap">
           <Search size={20} />
@@ -42,7 +57,6 @@ export const MenReview = () => {
         </div>
       </div>
 
-      {/* Filtros para ordenar la lista */}
       <div className="men-review__filters">
         {FILTERS.map((filter) => (
           <button
@@ -55,19 +69,38 @@ export const MenReview = () => {
         ))}
       </div>
 
-      {/* Lista principal y resumen lateral */}
       <div className="men-review__layout">
         <div className="men-review__feed">
           {filteredPosts.map((post) => (
             <div key={post.id} className="review-card">
               <div className="review-card__header">
-                <div className="review-card__avatar" style={{ backgroundColor: post.avatarColor }} />
-                <span className="review-card__username">{post.username}</span>
+                {post.avatar_url ? (
+                  <img src={post.avatar_url} alt={post.username} className="review-card__avatar" />
+                ) : (
+                  <div className="review-card__avatar" />
+                )}
+                <button
+                  className="review-card__username-btn"
+                  onClick={() => handleUsernameClick(post.user_id)}
+                >
+                  {post.username}
+                </button>
+                {post.user_id === auth?.profile?.id && (
+                  <button
+                    className="review-card__delete-btn"
+                    onClick={() => handleDelete(post.id)}
+                    aria-label="Delete review"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                )}
               </div>
 
               <span className="review-card__man-name">{post.manName}</span>
 
-              <img src={post.imageUrl} alt={post.manName} className="review-card__image" />
+              {post.imageUrl && (
+                <img src={post.imageUrl} alt={post.manName} className="review-card__image" />
+              )}
 
               <p className="review-card__description">{post.description}</p>
 
@@ -89,9 +122,14 @@ export const MenReview = () => {
               </div>
             </div>
           ))}
+
+          {filteredPosts.length === 0 && (
+            <p style={{ textAlign: 'center', color: '#aaa', padding: '40px 0' }}>
+              No reviews yet.
+            </p>
+          )}
         </div>
 
-        {/* Ranking de los mas votados */}
         <aside className="men-review__sidebar">
           <p className="men-review__sidebar-title">Most voted</p>
 

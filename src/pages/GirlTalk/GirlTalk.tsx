@@ -9,7 +9,7 @@ import menReviewImg from '../../assets/MenReviewPic.png'
 import './GirlTalk.css'
 
 export const GirlTalk = () => {
-  const { posts, handleLike, handleComment } = useContext(GirlTalkContext)!
+  const { posts, handleLike, handleComment, deletePost } = useContext(GirlTalkContext)!
 
   return (
     <div className="girl-talk">
@@ -29,6 +29,7 @@ export const GirlTalk = () => {
                 post={post}
                 onLike={handleLike}
                 onComment={handleComment}
+                onDelete={deletePost}
               />
             ))}
           </div>

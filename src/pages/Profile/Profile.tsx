@@ -1,53 +1,88 @@
-import { useState, useContext } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useContext, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { GirlTalkContext } from '../../context/GirlTalkContext'
 import { MenReviewContext } from '../../context/Menreviewcontext'
 import { ProductsContext } from '../../context/Productscontext'
-import { Flag, Star, MessageSquare, Heart } from 'lucide-react'
+import { AuthContext } from '../../context/AuthContext'
+import { supabase } from '../../data/supabase'
+import { Flag, Star, MessageSquare, Heart, ArrowLeft } from 'lucide-react'
+import type { UserProfile } from '../../types/Post'
 import './Profile.css'
 
-// Pestanas del perfil
 type ProfileTab = 'Girl Talk' | 'Rate a man' | 'Rate a Product'
 const TABS: ProfileTab[] = ['Girl Talk', 'Rate a man', 'Rate a Product']
 
-// Nombre de la usuaria en sesion (placeholder hasta conectar Firebase)
-const CURRENT_USER = 'CherryOracle'
-const CURRENT_AVATAR_COLOR = '#c60017'
-
 export const Profile = () => {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState<ProfileTab>('Girl Talk')
+  const { userId } = useParams<{ userId?: string }>()
 
+  const auth = useContext(AuthContext)
   const { posts: girlTalkPosts, handleLike } = useContext(GirlTalkContext)!
   const { posts: menReviewPosts } = useContext(MenReviewContext)!
   const { posts: productPosts } = useContext(ProductsContext)!
 
-  // Filtra solo los posts del usuario actual
-  const myGirlTalkPosts = girlTalkPosts.filter((p) => p.username === CURRENT_USER)
-  const myMenReviewPosts = menReviewPosts.filter((p) => p.username === CURRENT_USER)
-  const myProductPosts = productPosts.filter((p) => p.username === CURRENT_USER)
+  const [activeTab, setActiveTab] = useState<ProfileTab>('Girl Talk')
 
-  const handleLogout = () => {
-    // Aqui se desconectara Firebase en la rama feature/auth
+  // Si hay userId en la URL y es diferente al usuario actual, estamos viendo el perfil de otra
+  const isOwnProfile = !userId || userId === auth?.profile?.id
+  const [visitedProfile, setVisitedProfile] = useState<UserProfile | null>(null)
+
+  useEffect(() => {
+    if (!isOwnProfile && userId) {
+      supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single()
+        .then(({ data, error }) => {
+          if (!error && data) setVisitedProfile(data as UserProfile)
+        })
+    } else {
+      setVisitedProfile(null)
+    }
+  }, [userId, isOwnProfile])
+
+  const shownProfile = isOwnProfile ? auth?.profile : visitedProfile
+  const targetId = isOwnProfile ? auth?.profile?.id : userId
+
+  const myGirlTalkPosts = girlTalkPosts.filter((p) => p.user_id === targetId)
+  const myMenReviewPosts = menReviewPosts.filter((p) => p.user_id === targetId)
+  const myProductPosts = productPosts.filter((p) => p.user_id === targetId)
+
+  const handleLogout = async () => {
+    await auth?.logout()
     navigate('/')
   }
 
   return (
     <div className="profile">
-      {/* Cabecera con avatar y boton de salir */}
+      {/* Cabecera con avatar */}
       <div className="profile__header">
-        <button className="profile__logout" onClick={handleLogout}>
-          Log Out
-        </button>
+        {!isOwnProfile && (
+          <button className="profile__back-btn" onClick={() => navigate(-1)}>
+            <ArrowLeft size={18} /> Back
+          </button>
+        )}
+        {isOwnProfile && (
+          <button className="profile__logout" onClick={handleLogout}>
+            Log Out
+          </button>
+        )}
         <div className="profile__avatar-wrap">
-          <div className="profile__avatar" style={{ backgroundColor: CURRENT_AVATAR_COLOR }} />
+          {shownProfile?.avatar_url ? (
+            <img
+              src={shownProfile.avatar_url}
+              alt={shownProfile.username}
+              className="profile__avatar"
+            />
+          ) : (
+            <div className="profile__avatar" />
+          )}
         </div>
       </div>
 
-      {/* Nombre de usuario */}
-      <p className="profile__username">{CURRENT_USER}</p>
+      <p className="profile__username">{shownProfile?.username ?? ''}</p>
 
-      {/* Pestanas de tipo de contenido */}
       <div className="profile__tabs">
         {TABS.map((tab) => (
           <button
@@ -60,7 +95,6 @@ export const Profile = () => {
         ))}
       </div>
 
-      {/* Contenido segun la pestana activa */}
       <div className="profile__feed">
         {activeTab === 'Girl Talk' && (
           myGirlTalkPosts.length === 0
@@ -68,7 +102,7 @@ export const Profile = () => {
             : myGirlTalkPosts.map((post) => (
               <div key={post.id} className="profile__post-card">
                 <div className="profile__post-header">
-                  <div className="profile__post-avatar" style={{ backgroundColor: post.avatarColor }} />
+                  <img src={post.avatar_url} alt={post.username} className="profile__post-avatar" />
                   <span className="profile__post-username">{post.username}</span>
                 </div>
                 <p className="profile__post-text">{post.text}</p>
@@ -78,7 +112,7 @@ export const Profile = () => {
                   </span>
                   <button
                     className={`profile__post-action profile__post-like ${post.liked ? 'liked' : ''}`}
-                    onClick={() => handleLike(post.id)}
+                    onClick={() => isOwnProfile && handleLike(post.id)}
                   >
                     <Heart size={14} fill={post.liked ? 'currentColor' : 'none'} /> {post.likes}
                   </button>
@@ -93,7 +127,7 @@ export const Profile = () => {
             : myMenReviewPosts.map((post) => (
               <div key={post.id} className="profile__post-card">
                 <div className="profile__post-header">
-                  <div className="profile__post-avatar" style={{ backgroundColor: post.avatarColor }} />
+                  <img src={post.avatar_url} alt={post.username} className="profile__post-avatar" />
                   <span className="profile__post-username">{post.username}</span>
                 </div>
                 <p className="profile__post-man-name">{post.manName}</p>
@@ -119,7 +153,7 @@ export const Profile = () => {
             : myProductPosts.map((post) => (
               <div key={post.id} className="profile__post-card">
                 <div className="profile__post-header">
-                  <div className="profile__post-avatar" style={{ backgroundColor: post.avatarColor }} />
+                  <img src={post.avatar_url} alt={post.username} className="profile__post-avatar" />
                   <span className="profile__post-username">{post.username}</span>
                 </div>
                 <p className="profile__post-man-name">{post.productName}</p>

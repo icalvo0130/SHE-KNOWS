@@ -130,7 +130,7 @@ export const NavBar = () => {
           <div className="Popup" onClick={(e) => e.stopPropagation()}>
             <GirlTalkForm
               onClose={closePopup}
-              onPost={(text) => { addGirlTalkPost(text); closePopup() }}
+              onPost={async (text) => { await addGirlTalkPost(text); closePopup() }}
             />
           </div>
         </div>
@@ -140,16 +140,16 @@ export const NavBar = () => {
       {activePopup === 'rate-guy' && (
         <div className="Popup-overlay" onClick={closePopup}>
           <div className="Popup" onClick={(e) => e.stopPropagation()}>
-            <RateGuyForm onClose={closePopup} onPost={(post) => { addMenReviewPost(post); closePopup() }} />
+            <RateGuyForm onClose={closePopup} onPost={addMenReviewPost} />
           </div>
         </div>
       )}
 
-      {/* Ventana para reseñar un producto */}
+      {/* Ventana para resenar un producto */}
       {activePopup === 'review-product' && (
         <div className="Popup-overlay" onClick={closePopup}>
           <div className="Popup" onClick={(e) => e.stopPropagation()}>
-            <ReviewProductForm onClose={closePopup} onPost={(post) => { addProductPost(post); closePopup() }} />
+            <ReviewProductForm onClose={closePopup} onPost={addProductPost} />
           </div>
         </div>
       )}

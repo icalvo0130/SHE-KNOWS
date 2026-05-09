@@ -18,12 +18,14 @@ const SidebarTendencias = ({ tendencias }: SidebarProps) => (
     <p className="products__sidebar-title">Tendencies</p>
     {tendencias.map((t, i) => (
       <div key={i} className="products__sidebar-card">
-        <img
-          src={t.post.imageUrl}
-          alt={t.post.productName}
-          className="products__sidebar-card-img"
-          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-        />
+        {t.post.imageUrl ? (
+          <img
+            src={t.post.imageUrl}
+            alt={t.post.productName}
+            className="products__sidebar-card-img"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+          />
+        ) : null}
         <div className="products__sidebar-card-info">
           <p className="products__sidebar-card-name">{t.post.productName}</p>
           <p className="products__sidebar-card-brand">Brand: {t.post.brand}</p>
@@ -45,7 +47,7 @@ const SidebarTendencias = ({ tendencias }: SidebarProps) => (
 
 export const Products = () => {
   const navigate = useNavigate()
-  const { posts, handleRate, handleComment, tendencias } = useContext(ProductsContext)!
+  const { posts, handleComment, deletePost, tendencias } = useContext(ProductsContext)!
   const [search, setSearch] = useState('')
 
   // Filtra los productos visibles segun el texto de busqueda
@@ -100,7 +102,7 @@ export const Products = () => {
 
           {/* Tarjetas de productos visibles */}
           {visiblePosts.map((post) => (
-            <ProductCard key={post.id} post={post} onRate={handleRate} onComment={handleComment} />
+            <ProductCard key={post.id} post={post} onComment={handleComment} onDelete={deletePost} />
           ))}
 
           {/* Mensaje cuando no hay resultados */}

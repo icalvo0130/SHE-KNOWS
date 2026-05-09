@@ -1,13 +1,14 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useContext } from 'react'
 import { X, Upload, Star, ChevronDown } from 'lucide-react'
+import { supabase } from '../../../data/supabase'
+import { AuthContext } from '../../../context/AuthContext'
 import type { ProductCategory, ProductPost } from '../../../types/Post'
-import { getRandomColor } from '../../../types/Helpers'
 import '../../Popup/Popup.css'
 import './Reviewproductform.css'
 
 type ReviewProductFormProps = {
   onClose: () => void
-  onPost: (post: ProductPost) => void
+  onPost: (post: Omit<ProductPost, 'id' | 'user_id' | 'username' | 'avatar_url' | 'avgRating' | 'communityRatingCount' | 'comments' | 'createdAt'>) => Promise<void>
 }
 
 interface MakeupApiProduct {
@@ -21,10 +22,13 @@ interface MakeupApiProduct {
 const CATEGORIES: ProductCategory[] = ['Make-Up', 'Skin Care', 'Clothes', 'Gym']
 
 export const ReviewProductForm = ({ onClose, onPost }: ReviewProductFormProps) => {
+  const auth = useContext(AuthContext)
+
   const [productName, setProductName] = useState('')
   const [brand, setBrand] = useState('')
   const [imageUrl, setImageUrl] = useState('')
-  const [localImageUrl, setLocalImageUrl] = useState<string | null>(null)
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [category, setCategory] = useState<ProductCategory | ''>('')
   const [rating, setRating] = useState(0)
   const [hoverRating, setHoverRating] = useState(0)
@@ -33,14 +37,15 @@ export const ReviewProductForm = ({ onClose, onPost }: ReviewProductFormProps) =
   const [loadingApi, setLoadingApi] = useState(false)
   const [apiError, setApiError] = useState(false)
   const [showSuggestions, setShowSuggestions] = useState(false)
+  const [uploading, setUploading] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Solo deja publicar cuando todo lo necesario esta listo
-  const canPost = productName.trim() !== '' && brand.trim() !== '' && category !== '' && rating > 0 && description.trim() !== ''
+  const canPost = productName.trim() !== '' && brand.trim() !== '' && category !== '' && rating > 0 && description.trim() !== '' && !uploading
 
-  // Busca sugerencias en la API mientras se escribe el nombre
+  // Busca sugerencias en la API de makeup mientras se escribe el nombre
   useEffect(() => {
     if (productName.trim().length < 2) {
       setSuggestions([])
@@ -52,7 +57,7 @@ export const ReviewProductForm = ({ onClose, onPost }: ReviewProductFormProps) =
       setLoadingApi(true)
       setApiError(false)
       fetch(`https://makeup-api.herokuapp.com/api/v1/products.json?brand=${encodeURIComponent(productName)}`)
-        .then((res) => { if (!res.ok) throw new Error('API error'); return res.json() })
+        .then((res) => { if (!res.ok) throw new Error(); return res.json() })
         .then((data: MakeupApiProduct[]) => {
           setSuggestions(data.slice(0, 8))
           setShowSuggestions(true)
@@ -76,46 +81,67 @@ export const ReviewProductForm = ({ onClose, onPost }: ReviewProductFormProps) =
     return () => { if (searchTimeout.current) clearTimeout(searchTimeout.current) }
   }, [productName])
 
-  // Usa una sugerencia y rellena varios campos automaticamente
+  // Usa una sugerencia de la API y rellena varios campos automaticamente
   const handleSelectSuggestion = (product: MakeupApiProduct) => {
     setProductName(product.name)
     setBrand(product.brand || '')
     setImageUrl(product.image_link || '')
-    setLocalImageUrl(null)
+    setImageFile(null)
+    setImagePreview(null)
     setSuggestions([])
     setShowSuggestions(false)
   }
 
-  // Guarda una imagen local para mostrarla antes de publicar
+  // Guarda el archivo y genera una vista previa local
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+    setImageFile(file)
+    setImageUrl('')
     const reader = new FileReader()
-    reader.onload = (ev) => { setLocalImageUrl(ev.target?.result as string); setImageUrl('') }
+    reader.onload = (ev) => setImagePreview(ev.target?.result as string)
     reader.readAsDataURL(file)
   }
 
-  // Crea el post y lo envia al contexto a traves de la prop onPost
-  const handlePost = () => {
-    if (!canPost) return
-    const newPost: ProductPost = {
-      id: Date.now(),
-      username: 'AnonymousCat',
-      avatarColor: getRandomColor(),
-      productName: productName.trim(),
-      brand: brand.trim(),
-      imageUrl: localImageUrl ?? imageUrl,
-      category: category as ProductCategory,
-      userRating: rating,
-      communityRatings: [],
-      description: description.trim(),
-      comments: [],
-      createdAt: Date.now(),
+  // Sube la imagen seleccionada al bucket de Supabase y retorna la URL publica
+  const uploadImage = async (): Promise<string> => {
+    if (!imageFile || !auth?.profile) return imageUrl
+    const ext = imageFile.name.split('.').pop()
+    const path = `products/${auth.profile.id}-${Date.now()}.${ext}`
+
+    const { error } = await supabase.storage
+      .from('product-images')
+      .upload(path, imageFile, { upsert: false })
+
+    if (error) {
+      console.error('Error uploading image:', error)
+      return imageUrl
     }
-    onPost(newPost)
+
+    const { data } = supabase.storage.from('product-images').getPublicUrl(path)
+    return data.publicUrl
   }
 
-  const displayImage = localImageUrl ?? imageUrl
+  const handlePost = async () => {
+    if (!canPost) return
+    setUploading(true)
+
+    const finalImageUrl = await uploadImage()
+
+    await onPost({
+      productName: productName.trim(),
+      brand: brand.trim(),
+      imageUrl: finalImageUrl,
+      category: category as ProductCategory,
+      userRating: rating,
+      description: description.trim(),
+    })
+
+    setUploading(false)
+    onClose()
+  }
+
+  const displayImage = imagePreview ?? imageUrl
 
   return (
     <>
@@ -235,7 +261,9 @@ export const ReviewProductForm = ({ onClose, onPost }: ReviewProductFormProps) =
 
       {/* Boton final para publicar */}
       <div className="review-product-form__footer">
-        <button className="review-product-form__post-btn" onClick={handlePost} disabled={!canPost}>Post</button>
+        <button className="review-product-form__post-btn" onClick={handlePost} disabled={!canPost}>
+          {uploading ? 'Posting...' : 'Post'}
+        </button>
       </div>
     </>
   )

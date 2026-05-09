@@ -1,100 +1,191 @@
-import { createContext, useState } from 'react'
+import { createContext, useState, useEffect, useContext } from 'react'
+import { supabase } from '../data/supabase'
+import { AuthContext } from './AuthContext'
 import type { MenReviewPost } from '../types/Post'
+import type { MenReviewContextType } from '../types/Post'
 
-// Fotos de ejemplo para los posts iniciales
-const PLACEHOLDER_IMAGE_1 = 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=600&q=80'
-const PLACEHOLDER_IMAGE_2 = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80'
-const PLACEHOLDER_IMAGE_3 = 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&q=80'
-
-const initialPosts: MenReviewPost[] = [
-  {
-    id: 1,
-    username: 'IvoryPulse',
-    avatarColor: '#fd9a3e',
-    manName: 'Sebastian Rojas',
-    description: 'Very charismatic and confident in social settings, but inconsistent when it comes to communication. He tends to disappear for days and then come back as if nothing happened.',
-    imageUrl: PLACEHOLDER_IMAGE_1,
-    redFlags: 5,
-    greenFlags: 12,
-    userVote: null,
-  },
-  {
-    id: 2,
-    username: 'IvoryPulse',
-    avatarColor: '#fd9a3e',
-    manName: 'Sebastian Rojas',
-    description: 'Super attentive at first. Remembered every little detail I told him. But then completely changed after the third date. Classic situationship energy.',
-    imageUrl: PLACEHOLDER_IMAGE_2,
-    redFlags: 8,
-    greenFlags: 3,
-    userVote: null,
-  },
-  {
-    id: 3,
-    username: 'VelvetLuna',
-    avatarColor: '#fd6fae',
-    manName: 'Mateo Vargas',
-    description: 'The most thoughtful person I have ever met. Always showed up, always communicated. Genuinely one of the good ones.',
-    imageUrl: PLACEHOLDER_IMAGE_3,
-    redFlags: 1,
-    greenFlags: 20,
-    userVote: null,
-  },
-]
-
-// Tipado del contexto
-type MenReviewContextType = {
-  posts: MenReviewPost[]
-  addPost: (post: MenReviewPost) => void
-  handleVote: (postId: number, vote: 'red' | 'green') => void
-}
-
-// Creacion del contexto
 export const MenReviewContext = createContext<MenReviewContextType | null>(null)
 
-let nextId = initialPosts.length + 1
+// Convierte una fila de la vista men_review_feed al tipo local
+const mapRow = (row: Record<string, unknown>, userVote: 'red' | 'green' | null): MenReviewPost => ({
+  id: row.id as string,
+  user_id: row.user_id as string,
+  username: row.username as string,
+  avatar_url: row.avatar_url as string,
+  manName: row.man_name as string,
+  description: row.description as string,
+  imageUrl: (row.image_url as string) ?? '',
+  redFlags: (row.red_flags as number) ?? 0,
+  greenFlags: (row.green_flags as number) ?? 0,
+  userVote,
+  created_at: row.created_at as string,
+})
 
-// Provider que envuelve las paginas que necesitan acceso a los posts de Men Review
 export const MenReviewProvider = ({ children }: { children: React.ReactNode }) => {
-  const [posts, setPosts] = useState<MenReviewPost[]>(initialPosts)
+  const [posts, setPosts] = useState<MenReviewPost[]>([])
+  const [loading, setLoading] = useState(true)
+  const auth = useContext(AuthContext)
 
-  // Agrega un nuevo post al inicio de la lista
-  const addPost = (post: MenReviewPost) => {
-    const newPost = { ...post, id: nextId++ }
+  useEffect(() => {
+    const loadPosts = async () => {
+      setLoading(true)
+
+      const { data: feedData, error: feedError } = await supabase
+        .from('men_review_feed')
+        .select('*')
+
+      if (feedError) {
+        console.error('Error loading men review feed:', feedError)
+        setLoading(false)
+        return
+      }
+
+      // Carga el voto de la usuaria actual para cada post
+      const enriched: MenReviewPost[] = await Promise.all(
+        (feedData as Record<string, unknown>[]).map(async (row) => {
+          let userVote: 'red' | 'green' | null = null
+
+          if (auth?.profile?.id) {
+            const { data: voteData } = await supabase
+              .from('men_review_votes')
+              .select('vote')
+              .eq('post_id', row.id as string)
+              .eq('user_id', auth.profile.id)
+              .maybeSingle()
+
+            userVote = voteData ? (voteData as Record<string, string>).vote as 'red' | 'green' : null
+          }
+
+          return mapRow(row, userVote)
+        })
+      )
+
+      setPosts(enriched)
+      setLoading(false)
+    }
+
+    loadPosts()
+  }, [auth?.profile?.id])
+
+  // Sube la foto del hombre a Supabase Storage y crea el post
+  const addPost = async (
+    postData: Omit<MenReviewPost, 'id' | 'user_id' | 'username' | 'avatar_url' | 'redFlags' | 'greenFlags' | 'created_at'>
+  ) => {
+    if (!auth?.profile) return
+
+    const { data, error } = await supabase
+      .from('men_review_posts')
+      .insert({
+        user_id: auth.profile.id,
+        man_name: postData.manName,
+        description: postData.description,
+        image_url: postData.imageUrl,
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error creating men review post:', error)
+      return
+    }
+
+    const newPost: MenReviewPost = {
+      id: (data as Record<string, unknown>).id as string,
+      user_id: auth.profile.id,
+      username: auth.profile.username,
+      avatar_url: auth.profile.avatar_url,
+      manName: postData.manName,
+      description: postData.description,
+      imageUrl: postData.imageUrl,
+      redFlags: postData.userVote === 'red' ? 1 : 0,
+      greenFlags: postData.userVote === 'green' ? 1 : 0,
+      userVote: postData.userVote,
+      created_at: (data as Record<string, unknown>).created_at as string,
+    }
+
+    // Si eligio una flag, registramos el voto inicial
+    if (postData.userVote) {
+      await supabase
+        .from('men_review_votes')
+        .insert({ post_id: newPost.id, user_id: auth.profile.id, vote: postData.userVote })
+    }
+
     setPosts((prev) => [newPost, ...prev])
   }
 
-  // Cambia el voto de red/green en un post
-  const handleVote = (postId: number, vote: 'red' | 'green') => {
-    setPosts((prev) =>
-      prev.map((post) => {
-        if (post.id !== postId) return post
+  // Agrega, cambia o quita el voto de la usuaria en un post
+  const handleVote = async (postId: string, vote: 'red' | 'green') => {
+    if (!auth?.profile) return
 
-        // Si ya voto lo mismo, se deshace el voto
-        if (post.userVote === vote) {
+    const post = posts.find((p) => p.id === postId)
+    if (!post) return
+
+    if (post.userVote === vote) {
+      // Deshace el voto
+      await supabase
+        .from('men_review_votes')
+        .delete()
+        .eq('post_id', postId)
+        .eq('user_id', auth.profile.id)
+
+      setPosts((prev) =>
+        prev.map((p) => {
+          if (p.id !== postId) return p
           return {
-            ...post,
+            ...p,
             userVote: null,
-            redFlags: vote === 'red' ? post.redFlags - 1 : post.redFlags,
-            greenFlags: vote === 'green' ? post.greenFlags - 1 : post.greenFlags,
+            redFlags: vote === 'red' ? p.redFlags - 1 : p.redFlags,
+            greenFlags: vote === 'green' ? p.greenFlags - 1 : p.greenFlags,
           }
-        }
+        })
+      )
+    } else {
+      // Elimina el voto anterior si existia y agrega el nuevo
+      if (post.userVote) {
+        await supabase
+          .from('men_review_votes')
+          .delete()
+          .eq('post_id', postId)
+          .eq('user_id', auth.profile.id)
+      }
 
-        // Si cambia de voto, se resta el anterior y se suma el nuevo
-        const wasRed = post.userVote === 'red'
-        const wasGreen = post.userVote === 'green'
-        return {
-          ...post,
-          userVote: vote,
-          redFlags: vote === 'red' ? post.redFlags + 1 : wasRed ? post.redFlags - 1 : post.redFlags,
-          greenFlags: vote === 'green' ? post.greenFlags + 1 : wasGreen ? post.greenFlags - 1 : post.greenFlags,
-        }
-      })
-    )
+      const { error } = await supabase
+        .from('men_review_votes')
+        .insert({ post_id: postId, user_id: auth.profile.id, vote })
+
+      if (error) {
+        console.error('Error saving vote:', error)
+        return
+      }
+
+      setPosts((prev) =>
+        prev.map((p) => {
+          if (p.id !== postId) return p
+          const wasRed = p.userVote === 'red'
+          const wasGreen = p.userVote === 'green'
+          return {
+            ...p,
+            userVote: vote,
+            redFlags: vote === 'red' ? p.redFlags + 1 : wasRed ? p.redFlags - 1 : p.redFlags,
+            greenFlags: vote === 'green' ? p.greenFlags + 1 : wasGreen ? p.greenFlags - 1 : p.greenFlags,
+          }
+        })
+      )
+    }
+  }
+
+  // Elimina un post propio de Supabase y del estado local
+  const deletePost = async (id: string) => {
+    const { error } = await supabase
+      .from('men_review_posts')
+      .delete()
+      .eq('id', id)
+    if (error) { console.error('Error deleting men review post:', error); return }
+    setPosts((prev) => prev.filter((p) => p.id !== id))
   }
 
   return (
-    <MenReviewContext.Provider value={{ posts, addPost, handleVote }}>
+    <MenReviewContext.Provider value={{ posts, loading, addPost, handleVote, deletePost }}>
       {children}
     </MenReviewContext.Provider>
   )

@@ -1,7 +1,7 @@
 import { useState, useMemo, useContext } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import type { ProductPost, ProductCategory } from '../../types/Post'
-import { getAvgRating, formatRating } from '../../types/Helpers'
+import { formatRating } from '../../types/Helpers'
 import { ProductsContext } from '../../context/Productscontext'
 import './Products.css'
 
@@ -18,27 +18,30 @@ const slugToCategory = (slug: string): ProductCategory | null => {
 export const TopRated = () => {
   const { category: categorySlug } = useParams<{ category: string }>()
   const navigate = useNavigate()
-  const { posts } = useContext(ProductsContext)!
+  const ctx = useContext(ProductsContext)
+  const posts = ctx?.posts ?? []
 
   const category = slugToCategory(categorySlug ?? '')
 
-  // Cambia entre ranking semanal y general
   const [period, setPeriod] = useState<'weekly' | 'alltime'>('weekly')
   const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000
 
-  // Ordena los productos por nota segun la categoria y el periodo
   const ranked = useMemo(() => {
     if (!category) return []
     const filtered = posts.filter((p) => {
       if (p.category !== category) return false
-      if (period === 'weekly') return Date.now() - p.createdAt <= ONE_WEEK_MS
+      if (period === 'weekly') {
+        const createdAtMs = new Date(p.createdAt).getTime()
+        return Date.now() - createdAtMs <= ONE_WEEK_MS
+      }
       return true
     })
 
     const map = new Map<string, { post: ProductPost; avg: number; count: number }>()
     filtered.forEach((p) => {
       const key = `${p.productName}__${p.brand}`
-      const avg = getAvgRating(p)
+      // FIX: antes se llamaba getAvgRating(p) con un solo arg — ahora pasa los 3 correctos
+      const avg = p.communityRatingCount === 0 ? p.userRating : p.avgRating
       if (!map.has(key)) {
         map.set(key, { post: p, avg, count: 1 })
       } else {
@@ -54,7 +57,6 @@ export const TopRated = () => {
   }, [category, period, posts])
 
   const top3 = ranked.slice(0, 3)
-  // Orden visual del podio: 2do, 1ro, 3ro
   const podiumOrder = [top3[1], top3[0], top3[2]].filter(Boolean)
   const podiumBars = [
     'top-rated-view__podium-bar--2',
@@ -68,7 +70,6 @@ export const TopRated = () => {
       <div className="products__layout">
         <div className="products__feed">
           <div className="top-rated-view">
-            {/* Boton para volver a la categoria */}
             <button
               onClick={() => navigate(`/products/${categorySlug}`)}
               className="top-rated-view__back-btn"
@@ -76,7 +77,6 @@ export const TopRated = () => {
               ← Back to {category}
             </button>
 
-            {/* Selector del periodo del ranking */}
             <div className="top-rated-view__toggle">
               <button
                 className={`top-rated-view__toggle-btn ${period === 'weekly' ? 'active' : ''}`}
@@ -92,14 +92,12 @@ export const TopRated = () => {
               </button>
             </div>
 
-            {/* Mensaje cuando no hay datos para mostrar */}
             {top3.length === 0 ? (
               <p style={{ textAlign: 'center', color: '#aaa', padding: '40px 0' }}>
                 No rankings yet for this period.
               </p>
             ) : (
               <>
-                {/* Tres primeros lugares */}
                 <div className="top-rated-view__podium-area">
                   {podiumOrder.map((entry, idx) => (
                     <div key={idx} className="top-rated-view__podium-item">
@@ -120,7 +118,6 @@ export const TopRated = () => {
                   ))}
                 </div>
 
-                {/* Lista completa del ranking */}
                 <p className="top-rated-view__title">{category} Ranking</p>
                 <div className="top-rated-view__list">
                   {ranked.slice(0, 10).map((entry, i) => (

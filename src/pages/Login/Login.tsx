@@ -1,31 +1,47 @@
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { AuthContext } from '../../context/AuthContext'
+import { isInstitutionalEmail } from '../../types/Helpers'
 import logoImg from '../../assets/logo.png'
 import './Login.css'
 
-// Dominios institucionales permitidos
-const ALLOWED_DOMAINS = ['uninorte.edu.co', 'icesi.edu.co', 'javerianacali.edu.co']
-
-const isInstitutionalEmail = (email: string): boolean => {
-  const domain = email.split('@')[1]
-  return ALLOWED_DOMAINS.includes(domain)
-}
-
 export const Login = () => {
   const navigate = useNavigate()
+  const auth = useContext(AuthContext)
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [emailError, setEmailError] = useState('')
+  const [authError, setAuthError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
-  // Valida el dominio del correo antes de intentar ingresar
-  const handleLogin = () => {
+  const handleLogin = async () => {
+    setAuthError('')
+
+    // Primero se valida el dominio antes de llamar a Firebase
     if (!isInstitutionalEmail(email)) {
       setEmailError('Use your institutional email (.edu.co)')
       return
     }
+
     setEmailError('')
-    // Aqui se conectara Firebase en la rama feature/auth
-    navigate('/girl-talk')
+    setSubmitting(true)
+
+    try {
+      await auth?.login(email, password)
+      navigate('/girl-talk')
+    } catch (err: unknown) {
+      const code = (err as { code?: string }).code
+      if (code === 'auth/invalid-credential' || code === 'auth/wrong-password') {
+        setAuthError('Incorrect email or password.')
+      } else if (code === 'auth/user-not-found') {
+        setAuthError('No account found with this email.')
+      } else {
+        setAuthError('Something went wrong. Try again.')
+      }
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -59,8 +75,11 @@ export const Login = () => {
           />
         </div>
 
-        <button className="login__btn" onClick={handleLogin}>
-          Log In
+        {/* Error general de Firebase */}
+        {authError && <p className="login__field-error">{authError}</p>}
+
+        <button className="login__btn" onClick={handleLogin} disabled={submitting}>
+          {submitting ? 'Logging in...' : 'Log In'}
         </button>
 
         {/* Enlace para ir a registro */}

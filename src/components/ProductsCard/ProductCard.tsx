@@ -1,44 +1,60 @@
-import { useState } from 'react'
-import { Star, MessageSquare } from 'lucide-react'
+import { useState, useContext } from 'react'
+import { Star, MessageSquare, Send, Trash2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import type { ProductPost, ProductComment } from '../../types/Post'
-import { getAvgRating, formatRating } from '../../types/Helpers'
+import { formatRating } from '../../types/Helpers'
+import { AuthContext } from '../../context/AuthContext'
 import './ProductCard.css'
 
 type ProductCardProps = {
   post: ProductPost
-  onRate: (id: number, stars: number) => void
-  onComment: (id: number, text: string) => void
+  onComment: (id: string, text: string) => Promise<void>
+  onDelete: (id: string) => Promise<void>
 }
 
-let nextCommentId = 100
-
-export const ProductCard = ({ post, onRate, onComment }: ProductCardProps) => {
-  // Muestra o esconde los comentarios
+export const ProductCard = ({ post, onComment, onDelete }: ProductCardProps) => {
+  const auth = useContext(AuthContext)
+  const navigate = useNavigate()
   const [showComments, setShowComments] = useState(false)
-  // Texto que se va a publicar en un comentario
   const [commentText, setCommentText] = useState('')
-  // Sirve para resaltar una estrella al pasar el mouse
-  const [hoverStar, setHoverStar] = useState(0)
 
-  // Calcula el promedio de votos del producto
-  const avg = getAvgRating(post)
-  // Cuenta los votos totales que tiene el producto
-  const totalVotes = 1 + post.communityRatings.length
-
-  // Publica un comentario si hay texto
-  const handleComment = () => {
+  const handleComment = async () => {
     if (!commentText.trim()) return
-    onComment(post.id, commentText.trim())
+    await onComment(post.id, commentText.trim())
     setCommentText('')
-    nextCommentId++
   }
+
+  const handleUsernameClick = () => {
+    if (post.user_id === auth?.profile?.id) {
+      navigate('/profile')
+    } else {
+      navigate(`/profile/${post.user_id}`)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!window.confirm('Delete this product review?')) return
+    await onDelete(post.id)
+  }
+
+  const isOwner = post.user_id === auth?.profile?.id
 
   return (
     <article className="product-card">
-      {/* Datos de la persona que hizo la reseña */}
       <div className="product-card__header">
-        <div className="product-card__avatar" style={{ backgroundColor: post.avatarColor }} />
-        <span className="product-card__username">{post.username}</span>
+        {post.avatar_url ? (
+          <img src={post.avatar_url} alt={post.username} className="product-card__avatar" />
+        ) : (
+          <div className="product-card__avatar" />
+        )}
+        <button className="product-card__username-btn" onClick={handleUsernameClick}>
+          {post.username}
+        </button>
+        {isOwner && (
+          <button className="product-card__delete-btn" onClick={handleDelete} aria-label="Delete review">
+            <Trash2 size={15} />
+          </button>
+        )}
       </div>
 
       <p className="product-card__description">{post.description}</p>
@@ -47,7 +63,6 @@ export const ProductCard = ({ post, onRate, onComment }: ProductCardProps) => {
         <img src={post.imageUrl} alt={post.productName} className="product-card__image" />
       )}
 
-      {/* Nombre, marca y categoria del producto */}
       <div className="product-card__info">
         <div>
           <p className="product-card__name">{post.productName}</p>
@@ -56,28 +71,21 @@ export const ProductCard = ({ post, onRate, onComment }: ProductCardProps) => {
         <span className="product-card__category-badge">{post.category}</span>
       </div>
 
-      {/* Zona para votar y ver comentarios */}
+      {/* Estrellas fijas: muestran la calificacion de quien publico el post */}
       <div className="product-card__rating-row">
         <div className="product-card__stars">
           {[1, 2, 3, 4, 5].map((s) => (
-            <button
+            <Star
               key={s}
-              className="product-card__star"
-              onClick={() => onRate(post.id, s)}
-              onMouseEnter={() => setHoverStar(s)}
-              onMouseLeave={() => setHoverStar(0)}
-            >
-              <Star
-                size={20}
-                color="#e0a800"
-                fill={s <= Math.round(hoverStar || avg) ? '#e0a800' : 'none'}
-              />
-            </button>
+              size={20}
+              color="#e0a800"
+              fill={s <= post.userRating ? '#e0a800' : 'none'}
+            />
           ))}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <span className="product-card__rating-text">
-            {formatRating(avg)} ({totalVotes})
+            {formatRating(post.userRating)}
           </span>
           <button
             className="product-card__comment-btn"
@@ -91,15 +99,15 @@ export const ProductCard = ({ post, onRate, onComment }: ProductCardProps) => {
 
       {showComments && (
         <>
-          {/* Comentarios guardados del producto */}
           {post.comments.length > 0 && (
             <div className="product-card__comments">
               {post.comments.map((c: ProductComment) => (
                 <div key={c.id} className="product-card__comment">
-                  <div
-                    className="product-card__comment-avatar"
-                    style={{ backgroundColor: c.avatarColor }}
-                  />
+                  {c.avatar_url ? (
+                    <img src={c.avatar_url} alt={c.username} className="product-card__comment-avatar" />
+                  ) : (
+                    <div className="product-card__comment-avatar" />
+                  )}
                   <div className="product-card__comment-body">
                     <p className="product-card__comment-username">{c.username}</p>
                     <p className="product-card__comment-text">{c.text}</p>
@@ -108,17 +116,19 @@ export const ProductCard = ({ post, onRate, onComment }: ProductCardProps) => {
               ))}
             </div>
           )}
-          {/* Campo para escribir un comentario nuevo */}
-          <div className="product-card__comment-input">
-            <input
-              type="text"
-              placeholder="Escribe un comentario..."
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleComment()}
-            />
-            <button onClick={handleComment}>Post</button>
-          </div>
+
+          {auth?.profile && (
+            <div className="product-card__comment-input">
+              <input
+                type="text"
+                placeholder="Write a comment..."
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleComment() }}
+              />
+              <button onClick={handleComment}><Send size={16} /></button>
+            </div>
+          )}
         </>
       )}
     </article>

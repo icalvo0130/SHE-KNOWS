@@ -1,50 +1,75 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useContext } from 'react'
 import { Upload, X, Flag } from 'lucide-react'
+import { supabase } from '../../../data/supabase'
+import { AuthContext } from '../../../context/AuthContext'
 import type { MenReviewPost } from '../../../types/Post'
 import '../../Popup/Popup.css'
 import './RateGuyForm.css'
 
 type RateGuyFormProps = {
   onClose: () => void
-  onPost: (post: MenReviewPost) => void
+  onPost: (post: Omit<MenReviewPost, 'id' | 'user_id' | 'username' | 'avatar_url' | 'redFlags' | 'greenFlags' | 'created_at'>) => Promise<void>
 }
 
 export const RateGuyForm = ({ onClose, onPost }: RateGuyFormProps) => {
+  const auth = useContext(AuthContext)
+
   const [name, setName] = useState('')
   const [experience, setExperience] = useState('')
   const [flag, setFlag] = useState<'red' | 'green' | null>(null)
-  const [imageUrl, setImageUrl] = useState<string | null>(null)
-  const [imageName, setImageName] = useState('')
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Solo permite publicar cuando esta todo completo
-  const canPost = name.trim() !== '' && experience.trim() !== '' && flag !== null
+  const canPost = name.trim() !== '' && experience.trim() !== '' && flag !== null && !uploading
 
-  // Guarda la imagen elegida para ver una vista previa
+  // Guarda el archivo y genera vista previa local
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    setImageName(file.name)
+    setImageFile(file)
     const reader = new FileReader()
-    reader.onload = (ev) => setImageUrl(ev.target?.result as string)
+    reader.onload = (ev) => setImagePreview(ev.target?.result as string)
     reader.readAsDataURL(file)
   }
 
-  // Crea el post y lo envia al contexto a traves de la prop onPost
-  const handlePost = () => {
+  // Sube la imagen al bucket de Supabase y retorna la URL publica
+  const uploadImage = async (): Promise<string> => {
+    if (!imageFile || !auth?.profile) return ''
+    const ext = imageFile.name.split('.').pop()
+    const path = `men/${auth.profile.id}-${Date.now()}.${ext}`
+
+    const { error } = await supabase.storage
+      .from('men-images')
+      .upload(path, imageFile, { upsert: false })
+
+    if (error) {
+      console.error('Error uploading image:', error)
+      return ''
+    }
+
+    const { data } = supabase.storage.from('men-images').getPublicUrl(path)
+    return data.publicUrl
+  }
+
+  const handlePost = async () => {
     if (!canPost || !flag) return
-    const newPost: MenReviewPost = {
-      id: Date.now(),
-      username: 'AnonymousCat',
-      avatarColor: '#fd6fae',
+    setUploading(true)
+
+    const imageUrl = await uploadImage()
+
+    await onPost({
       manName: name.trim(),
       description: experience.trim(),
-      imageUrl: imageUrl ?? 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=600&q=80',
-      redFlags: flag === 'red' ? 1 : 0,
-      greenFlags: flag === 'green' ? 1 : 0,
+      imageUrl,
       userVote: flag,
-    }
-    onPost(newPost)
+    })
+
+    setUploading(false)
+    onClose()
   }
 
   return (
@@ -84,16 +109,16 @@ export const RateGuyForm = ({ onClose, onPost }: RateGuyFormProps) => {
         <div className="rate-guy-form__step-content">
           <p className="rate-guy-form__step-label">Picture</p>
           <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileChange} />
-          {imageUrl ? (
+          {imagePreview ? (
             <div className="rate-guy-form__preview">
-              <img src={imageUrl} alt="preview" className="rate-guy-form__preview-img" />
+              <img src={imagePreview} alt="preview" className="rate-guy-form__preview-img" />
               <button className="rate-guy-form__upload-btn" onClick={() => fileInputRef.current?.click()}>
                 <Upload size={18} /> Change picture
               </button>
             </div>
           ) : (
             <button className="rate-guy-form__upload-btn" onClick={() => fileInputRef.current?.click()}>
-              <Upload size={18} /> {imageName || 'Upload his picture'}
+              <Upload size={18} /> Upload his picture
             </button>
           )}
         </div>
@@ -125,7 +150,9 @@ export const RateGuyForm = ({ onClose, onPost }: RateGuyFormProps) => {
 
       {/* Boton final para publicar */}
       <div className="rate-guy-form__footer">
-        <button className="rate-guy-form__post-btn" onClick={handlePost} disabled={!canPost}>Post</button>
+        <button className="rate-guy-form__post-btn" onClick={handlePost} disabled={!canPost}>
+          {uploading ? 'Posting...' : 'Post'}
+        </button>
       </div>
     </>
   )
