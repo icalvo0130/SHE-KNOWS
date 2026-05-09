@@ -5,9 +5,14 @@ import { MenReviewContext } from '../../context/Menreviewcontext'
 import { ProductsContext } from '../../context/Productscontext'
 import { AuthContext } from '../../context/AuthContext'
 import { supabase } from '../../data/supabase'
-import { Flag, Star, MessageSquare, Heart, ArrowLeft } from 'lucide-react'
+import { Flag, Star, MessageSquare, Heart, ArrowLeft, Trash2 } from 'lucide-react'
 import type { UserProfile } from '../../types/Post'
 import './Profile.css'
+
+import topRatedBanner from '../../assets/TopRated.png'
+import productsBanner from '../../assets/Products.png'
+import menReviewBanner from '../../assets/MenReviewPic.png'
+import girlTalkBanner from '../../assets/girltalkbanner..png'
 
 type ProfileTab = 'Girl Talk' | 'Rate a man' | 'Rate a Product'
 const TABS: ProfileTab[] = ['Girl Talk', 'Rate a man', 'Rate a Product']
@@ -17,13 +22,12 @@ export const Profile = () => {
   const { userId } = useParams<{ userId?: string }>()
 
   const auth = useContext(AuthContext)
-  const { posts: girlTalkPosts, handleLike } = useContext(GirlTalkContext)!
-  const { posts: menReviewPosts } = useContext(MenReviewContext)!
-  const { posts: productPosts } = useContext(ProductsContext)!
+  const { posts: girlTalkPosts, handleLike, deletePost: deleteGirlTalk } = useContext(GirlTalkContext)!
+  const { posts: menReviewPosts, deletePost: deleteMenReview } = useContext(MenReviewContext)!
+  const { posts: productPosts, deletePost: deleteProduct } = useContext(ProductsContext)!
 
   const [activeTab, setActiveTab] = useState<ProfileTab>('Girl Talk')
 
-  // Si hay userId en la URL y es diferente al usuario actual, estamos viendo el perfil de otra
   const isOwnProfile = !userId || userId === auth?.profile?.id
   const [visitedProfile, setVisitedProfile] = useState<UserProfile | null>(null)
 
@@ -56,125 +60,157 @@ export const Profile = () => {
 
   return (
     <div className="profile">
-      {/* Cabecera con avatar */}
-      <div className="profile__header">
-        {!isOwnProfile && (
-          <button className="profile__back-btn" onClick={() => navigate(-1)}>
-            <ArrowLeft size={18} /> Back
-          </button>
-        )}
-        {isOwnProfile && (
-          <button className="profile__logout" onClick={handleLogout}>
-            Log Out
-          </button>
-        )}
-        <div className="profile__avatar-wrap">
-          {shownProfile?.avatar_url ? (
-            <img
-              src={shownProfile.avatar_url}
-              alt={shownProfile.username}
-              className="profile__avatar"
-            />
-          ) : (
-            <div className="profile__avatar" />
-          )}
+      <div className="profile__layout">
+        <div className="profile__feed">
+          {/* Cabecera con avatar grande y nombre al lado */}
+          <div className="profile__header-area">
+            {!isOwnProfile && (
+              <button className="profile__back-btn" onClick={() => navigate(-1)}>
+                <ArrowLeft size={18} /> Back
+              </button>
+            )}
+            
+            <div className="profile__user-info-row">
+              <div className="profile__avatar-container">
+                {shownProfile?.avatar_url ? (
+                  <img src={shownProfile.avatar_url} alt={shownProfile.username} className="profile__avatar" />
+                ) : (
+                  <div className="profile__avatar" />
+                )}
+              </div>
+              <p className="profile__username">{shownProfile?.username ?? ''}</p>
+            </div>
+
+            {isOwnProfile && (
+              <button className="profile__logout" onClick={handleLogout}>
+                Log Out <span className="profile__logout-icon">➜</span>
+              </button>
+            )}
+          </div>
+
+          <div className="profile__tabs">
+            {TABS.map((tab) => (
+              <button
+                key={tab}
+                className={`profile__tab ${activeTab === tab ? 'active' : ''}`}
+                onClick={() => setActiveTab(tab)}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          <div className="profile__posts">
+            {activeTab === 'Girl Talk' && (
+              myGirlTalkPosts.length === 0
+                ? <p className="profile__empty">No posts yet.</p>
+                : myGirlTalkPosts.map((post) => (
+                  <div key={post.id} className="profile__post-card">
+                    <div className="profile__post-header">
+                      {post.avatar_url ? (
+                         <img src={post.avatar_url} alt={post.username} className="profile__post-avatar" />
+                      ) : (
+                         <div className="profile__post-avatar empty" />
+                      )}
+                      <span className="profile__post-username">{post.username}</span>
+                      {isOwnProfile && (
+                        <button className="profile__post-delete" onClick={() => deleteGirlTalk(post.id)}>
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                    </div>
+                    <p className="profile__post-text">{post.text}</p>
+                    <div className="profile__post-actions">
+                      <span className="profile__post-action">
+                        <MessageSquare size={14} /> {post.comments.length}
+                      </span>
+                      <button
+                        className={`profile__post-action profile__post-like ${post.liked ? 'liked' : ''}`}
+                        onClick={() => isOwnProfile && handleLike(post.id)}
+                      >
+                        <Heart size={14} fill={post.liked ? 'currentColor' : 'none'} /> {post.likes}
+                      </button>
+                    </div>
+                  </div>
+                ))
+            )}
+
+            {activeTab === 'Rate a man' && (
+              myMenReviewPosts.length === 0
+                ? <p className="profile__empty">No posts yet.</p>
+                : myMenReviewPosts.map((post) => (
+                  <div key={post.id} className="profile__post-card">
+                    <div className="profile__post-header">
+                      {post.avatar_url ? (
+                         <img src={post.avatar_url} alt={post.username} className="profile__post-avatar" />
+                      ) : (
+                         <div className="profile__post-avatar empty" />
+                      )}
+                      <span className="profile__post-username">{post.username}</span>
+                      {isOwnProfile && (
+                        <button className="profile__post-delete" onClick={() => deleteMenReview(post.id)}>
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                    </div>
+                    {/* According to the mockup, the feed format looks similar to Girl Talk even for Rate a Man? 
+                        The user mockup shows generic text for the posts. We'll show the standard text. */}
+                    <p className="profile__post-text">{post.description}</p>
+                    <div className="profile__post-actions">
+                      <span className="profile__post-action">
+                        <MessageSquare size={14} /> {post.comments.length}
+                      </span>
+                      <button className="profile__post-action profile__post-like">
+                        <Heart size={14} fill="none" /> 760
+                      </button>
+                    </div>
+                  </div>
+                ))
+            )}
+
+            {activeTab === 'Rate a Product' && (
+              myProductPosts.length === 0
+                ? <p className="profile__empty">No posts yet.</p>
+                : myProductPosts.map((post) => (
+                  <div key={post.id} className="profile__post-card">
+                    <div className="profile__post-header">
+                      {post.avatar_url ? (
+                         <img src={post.avatar_url} alt={post.username} className="profile__post-avatar" />
+                      ) : (
+                         <div className="profile__post-avatar empty" />
+                      )}
+                      <span className="profile__post-username">{post.username}</span>
+                      {isOwnProfile && (
+                        <button className="profile__post-delete" onClick={() => deleteProduct(post.id)}>
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                    </div>
+                    <p className="profile__post-text">{post.description}</p>
+                    <div className="profile__post-actions">
+                      <span className="profile__post-action">
+                        <MessageSquare size={14} /> {post.comments.length}
+                      </span>
+                      <button className="profile__post-action profile__post-like">
+                        <Heart size={14} fill="none" /> 760
+                      </button>
+                    </div>
+                  </div>
+                ))
+            )}
+          </div>
         </div>
-      </div>
 
-      <p className="profile__username">{shownProfile?.username ?? ''}</p>
-
-      <div className="profile__tabs">
-        {TABS.map((tab) => (
-          <button
-            key={tab}
-            className={`profile__tab ${activeTab === tab ? 'active' : ''}`}
-            onClick={() => setActiveTab(tab)}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
-
-      <div className="profile__feed">
-        {activeTab === 'Girl Talk' && (
-          myGirlTalkPosts.length === 0
-            ? <p className="profile__empty">No posts yet.</p>
-            : myGirlTalkPosts.map((post) => (
-              <div key={post.id} className="profile__post-card">
-                <div className="profile__post-header">
-                  <img src={post.avatar_url} alt={post.username} className="profile__post-avatar" />
-                  <span className="profile__post-username">{post.username}</span>
-                </div>
-                <p className="profile__post-text">{post.text}</p>
-                <div className="profile__post-actions">
-                  <span className="profile__post-action">
-                    <MessageSquare size={14} /> {post.comments.length}
-                  </span>
-                  <button
-                    className={`profile__post-action profile__post-like ${post.liked ? 'liked' : ''}`}
-                    onClick={() => isOwnProfile && handleLike(post.id)}
-                  >
-                    <Heart size={14} fill={post.liked ? 'currentColor' : 'none'} /> {post.likes}
-                  </button>
-                </div>
-              </div>
-            ))
-        )}
-
-        {activeTab === 'Rate a man' && (
-          myMenReviewPosts.length === 0
-            ? <p className="profile__empty">No posts yet.</p>
-            : myMenReviewPosts.map((post) => (
-              <div key={post.id} className="profile__post-card">
-                <div className="profile__post-header">
-                  <img src={post.avatar_url} alt={post.username} className="profile__post-avatar" />
-                  <span className="profile__post-username">{post.username}</span>
-                </div>
-                <p className="profile__post-man-name">{post.manName}</p>
-                {post.imageUrl && (
-                  <img src={post.imageUrl} alt={post.manName} className="profile__post-img" />
-                )}
-                <p className="profile__post-text">{post.description}</p>
-                <div className="profile__post-actions">
-                  <span className="profile__post-action green">
-                    <Flag size={14} color="#2e7d32" fill="#2e7d32" /> {post.greenFlags}
-                  </span>
-                  <span className="profile__post-action red">
-                    <Flag size={14} color="#e53935" fill="#e53935" /> {post.redFlags}
-                  </span>
-                </div>
-              </div>
-            ))
-        )}
-
-        {activeTab === 'Rate a Product' && (
-          myProductPosts.length === 0
-            ? <p className="profile__empty">No posts yet.</p>
-            : myProductPosts.map((post) => (
-              <div key={post.id} className="profile__post-card">
-                <div className="profile__post-header">
-                  <img src={post.avatar_url} alt={post.username} className="profile__post-avatar" />
-                  <span className="profile__post-username">{post.username}</span>
-                </div>
-                <p className="profile__post-man-name">{post.productName}</p>
-                <p className="profile__post-brand">{post.brand}</p>
-                {post.imageUrl && (
-                  <img src={post.imageUrl} alt={post.productName} className="profile__post-img" />
-                )}
-                <p className="profile__post-text">{post.description}</p>
-                <div className="profile__post-actions">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <Star
-                      key={s}
-                      size={14}
-                      color="#e0a800"
-                      fill={s <= post.userRating ? '#e0a800' : 'none'}
-                    />
-                  ))}
-                </div>
-              </div>
-            ))
-        )}
+        {/* Right Sidebar Banners */}
+        <aside className="profile__sidebar">
+          <p className="profile__sidebar-title">Don't miss this..</p>
+          <div className="profile__sidebar-banners">
+            <img src={topRatedBanner} alt="Top Rated" className="profile__banner-img" />
+            <img src={productsBanner} alt="Products We Trust" className="profile__banner-img" />
+            <img src={menReviewBanner} alt="Men Under Review" className="profile__banner-img" />
+            <img src={girlTalkBanner} alt="Girl Talk" className="profile__banner-img" />
+          </div>
+        </aside>
       </div>
     </div>
   )

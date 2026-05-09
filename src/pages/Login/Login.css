@@ -5,13 +5,7 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background-image: repeating-linear-gradient(
-    90deg,
-    transparent,
-    transparent 48px,
-    rgba(0, 0, 0, 0.06) 48px,
-    rgba(0, 0, 0, 0.06) 50px
-  );
+
 }
 
 .login__card {

@@ -66,19 +66,35 @@ export const NavBar = () => {
           <span className="navbar__item-label">Men Reviews</span>
         </Link>
 
+        <Link
+          to="/products"
+          className={`navbar__item ${isActive('/products') ? 'active' : ''}`}
+          onClick={() => setPopupOpen(false)}
+        >
+          <ShoppingBag size={24} />
+          <span className="navbar__item-label">Beauty</span>
+        </Link>
+
+        <Link
+          to="/profile"
+          className={`navbar__item ${isActive('/profile') ? 'active' : ''}`}
+          onClick={() => setPopupOpen(false)}
+        >
+          <User size={24} />
+          <span className="navbar__item-label">Profile</span>
+        </Link>
+
         <div className="navbar__add" ref={popupRef}>
-          {/* Boton para crear contenido nuevo */}
           <button
-            className="navbar__add-btn"
+            className="navbar__add-btn-red"
             onClick={() => setPopupOpen((prev) => !prev)}
             aria-label="Crear post"
           >
-            <Plus size={22} />
+            <Plus size={20} className="navbar__add-icon" />
             <span className="navbar__item-label">Speak Up</span>
           </button>
 
           {popupOpen && (
-            /* Opciones para elegir que tipo de post crear */
             <div className="navbar__popup">
               <button
                 className="navbar__popup-item"
@@ -104,24 +120,6 @@ export const NavBar = () => {
             </div>
           )}
         </div>
-
-        <Link
-          to="/products"
-          className={`navbar__item ${isActive('/products') ? 'active' : ''}`}
-          onClick={() => setPopupOpen(false)}
-        >
-          <ShoppingBag size={24} />
-          <span className="navbar__item-label">Beauty</span>
-        </Link>
-
-        <Link
-          to="/profile"
-          className={`navbar__item ${isActive('/profile') ? 'active' : ''}`}
-          onClick={() => setPopupOpen(false)}
-        >
-          <User size={24} />
-          <span className="navbar__item-label">Profile</span>
-        </Link>
       </nav>
 
       {/* Ventana para publicar en Girl Talk */}

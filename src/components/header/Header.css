@@ -27,21 +27,23 @@
 /* Desktop sidebar takes over nav → header becomes a top bar */
 @media (min-width: 768px) {
   .header {
-   
+    left: 0;
     right: 0;
+    width: 100%;
+    max-width: none;
+    transform: none;
     height: var(--header-height-desktop);
-    justify-content: flex-start;
-    
+    justify-content: center;
+    border-radius: 0;
     padding: 0 32px;  
   }
 
-
   .header__logo-text {
     display: block;
-    font-family: var(--font-body);
-    font-weight: 600;
-    font-size: 1.25rem;
-    color: var(--crema);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--blanco);
     letter-spacing: 0.02em;
   }
 }

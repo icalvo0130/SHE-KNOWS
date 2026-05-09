@@ -8,7 +8,7 @@
 
 .girl-talk__layout {
   display: flex;
-  gap: 80px;
+  gap: 40px;
   align-items: flex-start;
 }
 
@@ -83,10 +83,11 @@
 
 .girl-talk__posts {
   background: var(--blanco);
-  border: 1px solid var(--gris-borde);
-  border-radius: 12px;
+  border-left: 1px solid var(--gris-borde);
+  border-right: 1px solid var(--gris-borde);
+  border-radius: 0;
   overflow: hidden;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  box-shadow: none;
 }
 
 /* Right sidebar — desktop only */

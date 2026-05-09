@@ -5,14 +5,7 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
-  /* Fondo con rayas verticales sutiles igual que el diseño */
-  background-image: repeating-linear-gradient(
-    90deg,
-    transparent,
-    transparent 48px,
-    rgba(0, 0, 0, 0.06) 48px,
-    rgba(0, 0, 0, 0.06) 50px
-  );
+
 }
 
 .welcome__card {

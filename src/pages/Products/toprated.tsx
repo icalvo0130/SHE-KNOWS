@@ -1,5 +1,5 @@
 import { useState, useMemo, useContext } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import type { ProductPost, ProductCategory } from '../../types/Post'
 import { formatRating } from '../../types/Helpers'
 import { ProductsContext } from '../../context/Productscontext'
@@ -17,7 +17,6 @@ const slugToCategory = (slug: string): ProductCategory | null => {
 
 export const TopRated = () => {
   const { category: categorySlug } = useParams<{ category: string }>()
-  const navigate = useNavigate()
   const ctx = useContext(ProductsContext)
   const posts = ctx?.posts ?? []
 
@@ -70,13 +69,6 @@ export const TopRated = () => {
       <div className="products__layout">
         <div className="products__feed">
           <div className="top-rated-view">
-            <button
-              onClick={() => navigate(`/products/${categorySlug}`)}
-              className="top-rated-view__back-btn"
-            >
-              ← Back to {category}
-            </button>
-
             <div className="top-rated-view__toggle">
               <button
                 className={`top-rated-view__toggle-btn ${period === 'weekly' ? 'active' : ''}`}
@@ -101,17 +93,19 @@ export const TopRated = () => {
                 <div className="top-rated-view__podium-area">
                   {podiumOrder.map((entry, idx) => (
                     <div key={idx} className="top-rated-view__podium-item">
-                      <img
-                        src={entry.post.imageUrl}
-                        alt={entry.post.productName}
-                        className="top-rated-view__podium-img"
-                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-                      />
-                      <p className="top-rated-view__podium-name">{entry.post.productName}</p>
-                      <span className="top-rated-view__podium-score">
-                        {formatRating(entry.avg)} ★
-                      </span>
+                      <div className="top-rated-view__podium-img-wrap">
+                        <img
+                          src={entry.post.imageUrl}
+                          alt={entry.post.productName}
+                          className="top-rated-view__podium-img"
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                        />
+                        <span className="top-rated-view__podium-score">
+                          ★ {formatRating(entry.avg)}
+                        </span>
+                      </div>
                       <div className={`top-rated-view__podium-bar ${podiumBars[idx]}`}>
+                        <p className="top-rated-view__podium-name">{entry.post.productName}</p>
                         <span className="top-rated-view__podium-number">{podiumNums[idx]}</span>
                       </div>
                     </div>

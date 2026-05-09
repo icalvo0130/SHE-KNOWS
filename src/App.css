@@ -22,11 +22,14 @@
 @media (min-width: 768px) {
   .app {
     flex-direction: row;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
   }
 
   .app__main {
-    margin-left: var(--sidebar-width);
-    padding-top: var(--header-height-desktop);
+    margin-left: 280px; /* Ancho del sidebar 250px + 30px gap */
+    padding-top: calc(var(--header-height-desktop) + 32px);
     padding-bottom: 0;
     flex: 1;
   }

@@ -45,32 +45,20 @@ export const MenReview = () => {
 
   return (
     <div className="men-review">
-      <div className="men-review__search-bar">
-        <div className="men-review__search-input-wrap">
-          <Search size={20} />
-          <input
-            type="text"
-            placeholder="Search man"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-      </div>
-
-      <div className="men-review__filters">
-        {FILTERS.map((filter) => (
-          <button
-            key={filter}
-            className={`men-review__filter-tag ${activeFilter === filter ? 'active' : ''}`}
-            onClick={() => setActiveFilter(filter)}
-          >
-            {filter}
-          </button>
-        ))}
-      </div>
-
       <div className="men-review__layout">
         <div className="men-review__feed">
+          <div className="men-review__filters">
+            {FILTERS.map((filter) => (
+              <button
+                key={filter}
+                className={`men-review__filter-tag ${activeFilter === filter ? 'active' : ''}`}
+                onClick={() => setActiveFilter(filter)}
+              >
+                {filter}
+              </button>
+            ))}
+          </div>
+
           {filteredPosts.map((post) => (
             <div key={post.id} className="review-card">
               <div className="review-card__header">
@@ -131,17 +119,29 @@ export const MenReview = () => {
         </div>
 
         <aside className="men-review__sidebar">
+          <div className="men-review__search-bar">
+            <div className="men-review__search-input-wrap">
+              <input
+                type="text"
+                placeholder="Search a man"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <Search size={20} />
+            </div>
+          </div>
+
           <p className="men-review__sidebar-title">Most voted</p>
 
           <div className="men-review__rank-box">
             <p className="men-review__rank-box-title green">
-              <Flag size={14} color="#2e7d32" fill="#2e7d32" /> Green flag
+              Top Green flags
             </p>
             {topGreen.map((post) => (
               <div key={`g-${post.id}`} className="men-review__rank-item">
                 <span className="men-review__rank-item-name">{post.manName}</span>
                 <span className="men-review__rank-item-count">
-                  <Flag size={14} color="#fff" fill="#fff" />
+                  <Flag size={14} color="#2e7d32" fill="#2e7d32" />
                   {post.greenFlags}
                 </span>
               </div>
@@ -150,13 +150,13 @@ export const MenReview = () => {
 
           <div className="men-review__rank-box">
             <p className="men-review__rank-box-title red">
-              <Flag size={14} color="#e53935" fill="#e53935" /> Red flag
+              Top Red flags
             </p>
             {topRed.map((post) => (
               <div key={`r-${post.id}`} className="men-review__rank-item">
                 <span className="men-review__rank-item-name">{post.manName}</span>
                 <span className="men-review__rank-item-count">
-                  <Flag size={14} color="#fff" fill="#fff" />
+                  <Flag size={14} color="#e53935" fill="#e53935" />
                   {post.redFlags}
                 </span>
               </div>
