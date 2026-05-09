@@ -21,25 +21,31 @@ import './App.css'
 const AUTH_ROUTES = ['/', '/login', '/register']
 
 function App() {
+  // Obtiene la ruta actual
   const location = useLocation()
+  // Verifica si estamos en una pagina de autenticacion
   const isAuthPage = AUTH_ROUTES.includes(location.pathname)
 
   return (
+    // Envuelve toda la app en los proveedores de contexto
     <AuthProvider>
       <GirlTalkProvider>
         <MenReviewProvider>
           <ProductsProvider>
             <div className="app">
+              {/* Muestra el header solo si no estamos en una pagina de autenticacion */}
               {!isAuthPage && <Header />}
+              {/* Muestra la barra de navegacion solo si no estamos en una pagina de autenticacion */}
               {!isAuthPage && <NavBar />}
+              {/* Ajusta el estilo del main segun si es pagina de auth o no */}
               <main className={isAuthPage ? 'app__main app__main--auth' : 'app__main'}>
                 <Routes>
-                  {/* Rutas publicas */}
+                  {/* Rutas publicas que no requieren autenticacion */}
                   <Route path="/" element={<Welcome />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
 
-                  {/* Rutas privadas */}
+                  {/* Rutas privadas que requieren estar autenticado */}
                   <Route path="/girl-talk" element={<ProtectedRoute><GirlTalk /></ProtectedRoute>} />
                   <Route path="/men-review" element={<ProtectedRoute><MenReview /></ProtectedRoute>} />
                   <Route path="/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
@@ -50,6 +56,7 @@ function App() {
                   <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                   <Route path="/profile/:userId" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
+                  {/* Ruta para paginas no encontradas */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>

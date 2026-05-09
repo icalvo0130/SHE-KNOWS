@@ -11,13 +11,16 @@ type GirlTalkFormProps = {
 export const GirlTalkForm = ({ onClose, onPost }: GirlTalkFormProps) => {
   // Texto que se esta escribiendo
   const [text, setText] = useState('')
-  // Solo deja publicar si hay contenido
+  // Valida que haya contenido antes de permitir publicar
   const canPost = text.trim().length > 0
 
-  // Envias el post y cierras la ventana
+  // Publica el post si hay contenido y cierra la ventana
   const handlePost = () => {
+    // Si el texto esta vacio, no hace nada
     if (!canPost) return
+    // Envía el texto sin espacios al principio o final
     onPost(text.trim())
+    // Cierra el formulario
     onClose()
   }
 

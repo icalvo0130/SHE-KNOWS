@@ -23,25 +23,32 @@ export const RateGuyForm = ({ onClose, onPost }: RateGuyFormProps) => {
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Solo permite publicar cuando esta todo completo
+  // Solo permite publicar cuando todos los campos estan completos
   const canPost = name.trim() !== '' && experience.trim() !== '' && flag !== null && !uploading
 
-  // Guarda el archivo y genera vista previa local
+  // Guarda el archivo seleccionado y genera una vista previa local para mostrar
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Obtiene el primer archivo del input
     const file = e.target.files?.[0]
     if (!file) return
+    // Almacena el archivo para subirlo despues
     setImageFile(file)
+    // Crea una URL local para mostrar la imagen inmediatamente sin esperar la subida
     const reader = new FileReader()
     reader.onload = (ev) => setImagePreview(ev.target?.result as string)
     reader.readAsDataURL(file)
   }
 
-  // Sube la imagen al bucket de Supabase y retorna la URL publica
+  // Sube la imagen al almacenamiento de Supabase y retorna la URL publica
   const uploadImage = async (): Promise<string> => {
+    // Si no hay archivo o usuario, devuelve vacio
     if (!imageFile || !auth?.profile) return ''
+    // Extrae la extension del archivo original
     const ext = imageFile.name.split('.').pop()
+    // Crea un nombre unico para el archivo usando el ID del usuario y timestamp
     const path = `men/${auth.profile.id}-${Date.now()}.${ext}`
 
+    // Sube el archivo al bucket men-images de Supabase
     const { error } = await supabase.storage
       .from('men-images')
       .upload(path, imageFile, { upsert: false })
@@ -51,16 +58,22 @@ export const RateGuyForm = ({ onClose, onPost }: RateGuyFormProps) => {
       return ''
     }
 
+    // Obtiene la URL publica del archivo subido
     const { data } = supabase.storage.from('men-images').getPublicUrl(path)
     return data.publicUrl
   }
 
+  // Maneja el envio del post con la imagen
   const handlePost = async () => {
+    // Si no se puede publicar, no hace nada
     if (!canPost || !flag) return
+    // Marca que se esta subiendo para desabilitar el boton
     setUploading(true)
 
+    // Sube la imagen y obtiene la URL
     const imageUrl = await uploadImage()
 
+    // Envía el post al contexto con todos los datos
     await onPost({
       manName: name.trim(),
       description: experience.trim(),
@@ -68,7 +81,9 @@ export const RateGuyForm = ({ onClose, onPost }: RateGuyFormProps) => {
       userVote: flag,
     })
 
+    // Marca que termino la subida
     setUploading(false)
+    // Cierra el formulario
     onClose()
   }
 

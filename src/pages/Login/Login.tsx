@@ -15,23 +15,32 @@ export const Login = () => {
   const [authError, setAuthError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
+  // Maneja el login de la usuaria
   const handleLogin = async () => {
+    // Limpia el error anterior
     setAuthError('')
 
-    // Primero se valida el dominio antes de llamar a Firebase
+    // Valida que el email sea institucional antes de enviar a Firebase
+    // De esta manera ahorra llamadas innecesarias a la API
     if (!isInstitutionalEmail(email)) {
       setEmailError('Use your institutional email (.edu.co)')
       return
     }
 
+    // Limpia el error de email si paso la validacion
     setEmailError('')
+    // Marca que se esta procesando el login
     setSubmitting(true)
 
     try {
+      // Intenta autenticar a la usuaria
       await auth?.login(email, password)
+      // Si es exitoso, redirige al feed
       navigate('/girl-talk')
     } catch (err: unknown) {
+      // Extrae el codigo de error de Firebase
       const code = (err as { code?: string }).code
+      // Muestra un mensaje de error segun el codigo
       if (code === 'auth/invalid-credential' || code === 'auth/wrong-password') {
         setAuthError('Incorrect email or password.')
       } else if (code === 'auth/user-not-found') {
@@ -40,6 +49,7 @@ export const Login = () => {
         setAuthError('Something went wrong. Try again.')
       }
     } finally {
+      // Siempre marca que termino el procesamiento
       setSubmitting(false)
     }
   }

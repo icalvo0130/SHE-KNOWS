@@ -15,23 +15,32 @@ export const Register = () => {
   const [authError, setAuthError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
+  // Maneja el registro de una nueva usuaria
   const handleSignUp = async () => {
+    // Limpia el error anterior
     setAuthError('')
 
-    // Solo se permite continuar con correo institucional
+    // Valida que el email sea institucional antes de enviar a Firebase
+    // De esta manera ahorra llamadas innecesarias a la API
     if (!isInstitutionalEmail(email)) {
       setEmailError('Use your institutional (.edu.co) email')
       return
     }
 
+    // Limpia el error de email si paso la validacion
     setEmailError('')
+    // Marca que se esta procesando el registro
     setSubmitting(true)
 
     try {
+      // Intenta registrar a la nueva usuaria
       await auth?.register(email, password)
+      // Si es exitoso, redirige al feed
       navigate('/girl-talk')
     } catch (err: unknown) {
+      // Extrae el codigo de error de Firebase
       const code = (err as { code?: string }).code
+      // Muestra un mensaje de error segun el codigo
       if (code === 'auth/email-already-in-use') {
         setAuthError('This email is already registered.')
       } else if (code === 'auth/weak-password') {
@@ -40,6 +49,7 @@ export const Register = () => {
         setAuthError('Something went wrong. Try again.')
       }
     } finally {
+      // Siempre marca que termino el procesamiento
       setSubmitting(false)
     }
   }

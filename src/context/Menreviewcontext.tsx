@@ -6,7 +6,8 @@ import type { MenReviewContextType } from '../types/Post'
 
 export const MenReviewContext = createContext<MenReviewContextType | null>(null)
 
-// Convierte una fila de la vista men_review_feed al tipo local
+// Transforma los datos de la base de datos al formato que usa la aplicacion
+// userVote indica si la usuaria actual voto red o green
 const mapRow = (row: Record<string, unknown>, userVote: 'red' | 'green' | null): MenReviewPost => ({
   id: row.id as string,
   user_id: row.user_id as string,
@@ -22,14 +23,19 @@ const mapRow = (row: Record<string, unknown>, userVote: 'red' | 'green' | null):
 })
 
 export const MenReviewProvider = ({ children }: { children: React.ReactNode }) => {
+  // Lista de todos los posts del feed
   const [posts, setPosts] = useState<MenReviewPost[]>([])
+  // Indica si se estan cargando los posts
   const [loading, setLoading] = useState(true)
+  // Accede al contexto de autenticacion para saber quien es el usuario
   const auth = useContext(AuthContext)
 
+  // Carga todos los posts al iniciar el componente
   useEffect(() => {
     const loadPosts = async () => {
       setLoading(true)
 
+      // Obtiene todos los posts de la vista men_review_feed
       const { data: feedData, error: feedError } = await supabase
         .from('men_review_feed')
         .select('*')
@@ -40,9 +46,10 @@ export const MenReviewProvider = ({ children }: { children: React.ReactNode }) =
         return
       }
 
-      // Carga el voto de la usuaria actual para cada post
+      // Procesa cada post para agregar el voto de la usuaria actual
       const enriched: MenReviewPost[] = await Promise.all(
         (feedData as Record<string, unknown>[]).map(async (row) => {
+          // Busca si la usuaria ya voto en este post
           let userVote: 'red' | 'green' | null = null
 
           if (auth?.profile?.id) {
@@ -53,6 +60,7 @@ export const MenReviewProvider = ({ children }: { children: React.ReactNode }) =
               .eq('user_id', auth.profile.id)
               .maybeSingle()
 
+            // Si hay voto, lo extrae (red o green)
             userVote = voteData ? (voteData as Record<string, string>).vote as 'red' | 'green' : null
           }
 
@@ -60,6 +68,7 @@ export const MenReviewProvider = ({ children }: { children: React.ReactNode }) =
         })
       )
 
+      // Actualiza el estado con todos los posts enriquecidos
       setPosts(enriched)
       setLoading(false)
     }
@@ -67,12 +76,14 @@ export const MenReviewProvider = ({ children }: { children: React.ReactNode }) =
     loadPosts()
   }, [auth?.profile?.id])
 
-  // Sube la foto del hombre a Supabase Storage y crea el post
+  // Crea un nuevo post de valoracion de hombre en la base de datos
   const addPost = async (
     postData: Omit<MenReviewPost, 'id' | 'user_id' | 'username' | 'avatar_url' | 'redFlags' | 'greenFlags' | 'created_at'>
   ) => {
+    // Si no hay usuario autenticado, no hace nada
     if (!auth?.profile) return
 
+    // Inserta el post en Supabase con los datos del hombre
     const { data, error } = await supabase
       .from('men_review_posts')
       .insert({
@@ -89,6 +100,7 @@ export const MenReviewProvider = ({ children }: { children: React.ReactNode }) =
       return
     }
 
+    // Crea el objeto del post con los datos del usuario actual
     const newPost: MenReviewPost = {
       id: (data as Record<string, unknown>).id as string,
       user_id: auth.profile.id,
@@ -103,31 +115,36 @@ export const MenReviewProvider = ({ children }: { children: React.ReactNode }) =
       created_at: (data as Record<string, unknown>).created_at as string,
     }
 
-    // Si eligio una flag, registramos el voto inicial
+    // Si la usuaria selecciono una flag, registra el voto inicial
     if (postData.userVote) {
       await supabase
         .from('men_review_votes')
         .insert({ post_id: newPost.id, user_id: auth.profile.id, vote: postData.userVote })
     }
 
+    // Agrega el nuevo post al principio de la lista
     setPosts((prev) => [newPost, ...prev])
   }
 
-  // Agrega, cambia o quita el voto de la usuaria en un post
+  // Maneja los votos red flag o green flag de la usuaria
   const handleVote = async (postId: string, vote: 'red' | 'green') => {
+    // Si no hay usuario autenticado, no hace nada
     if (!auth?.profile) return
 
+    // Busca el post en la lista
     const post = posts.find((p) => p.id === postId)
     if (!post) return
 
+    // Si la usuaria ya voto lo mismo, lo deshace
     if (post.userVote === vote) {
-      // Deshace el voto
+      // Elimina el voto de la base de datos
       await supabase
         .from('men_review_votes')
         .delete()
         .eq('post_id', postId)
         .eq('user_id', auth.profile.id)
 
+      // Actualiza el estado local reduciendo los flags
       setPosts((prev) =>
         prev.map((p) => {
           if (p.id !== postId) return p
@@ -140,7 +157,7 @@ export const MenReviewProvider = ({ children }: { children: React.ReactNode }) =
         })
       )
     } else {
-      // Elimina el voto anterior si existia y agrega el nuevo
+      // Si habia un voto anterior, lo elimina primero
       if (post.userVote) {
         await supabase
           .from('men_review_votes')
@@ -149,6 +166,7 @@ export const MenReviewProvider = ({ children }: { children: React.ReactNode }) =
           .eq('user_id', auth.profile.id)
       }
 
+      // Agrega el nuevo voto
       const { error } = await supabase
         .from('men_review_votes')
         .insert({ post_id: postId, user_id: auth.profile.id, vote })
@@ -158,14 +176,17 @@ export const MenReviewProvider = ({ children }: { children: React.ReactNode }) =
         return
       }
 
+      // Actualiza el estado local
       setPosts((prev) =>
         prev.map((p) => {
           if (p.id !== postId) return p
+          // Verifica si el voto anterior era red o green
           const wasRed = p.userVote === 'red'
           const wasGreen = p.userVote === 'green'
           return {
             ...p,
             userVote: vote,
+            // Suma el nuevo voto y resta el anterior si existia
             redFlags: vote === 'red' ? p.redFlags + 1 : wasRed ? p.redFlags - 1 : p.redFlags,
             greenFlags: vote === 'green' ? p.greenFlags + 1 : wasGreen ? p.greenFlags - 1 : p.greenFlags,
           }
@@ -174,13 +195,15 @@ export const MenReviewProvider = ({ children }: { children: React.ReactNode }) =
     }
   }
 
-  // Elimina un post propio de Supabase y del estado local
+  // Elimina un post propio de la base de datos y del estado local
   const deletePost = async (id: string) => {
+    // Elimina el post de Supabase
     const { error } = await supabase
       .from('men_review_posts')
       .delete()
       .eq('id', id)
     if (error) { console.error('Error deleting men review post:', error); return }
+    // Elimina el post del estado local
     setPosts((prev) => prev.filter((p) => p.id !== id))
   }
 

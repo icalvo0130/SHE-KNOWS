@@ -1,7 +1,6 @@
 import { useState, useMemo, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, Star } from 'lucide-react'
-import type { ProductPost } from '../../types/Post'
 import { CATEGORIES, CATEGORY_ICONS } from '../../types/Helpers'
 import { ProductCard } from '../../components/ProductsCard/ProductCard'
 import { ProductsContext } from '../../context/Productscontext'
@@ -14,9 +13,12 @@ export const Products = () => {
   const { posts, handleComment, deletePost, tendencias } = useContext(ProductsContext)!
   const [search, setSearch] = useState('')
 
-  // Filtra los productos visibles segun el texto de busqueda
+  // Filtra los productos que se muestran segun el texto de busqueda
+  // useMemo evita recalcular si posts y search no cambian
   const visiblePosts = useMemo(() => {
+    // Si no hay busqueda, muestra todos los posts
     if (!search) return posts
+    // Filtra los posts que coincidan con la busqueda en nombre o marca
     return posts.filter(
       (p) =>
         p.productName.toLowerCase().includes(search.toLowerCase()) ||

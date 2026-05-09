@@ -20,16 +20,25 @@ export const MenReview = () => {
   const [search, setSearch] = useState('')
   const [activeFilter, setActiveFilter] = useState('Todos')
 
+  // Filtra los posts segun el texto de busqueda y el filtro activo
   const filteredPosts = posts.filter((post) => {
+    // Valida que el nombre del chico contenga el texto de busqueda
     const matchesSearch = post.manName.toLowerCase().includes(search.toLowerCase())
+    // Si el filtro es Green flags, muestra solo los que tienen mas green que red
     if (activeFilter === 'Green flags') return matchesSearch && post.greenFlags > post.redFlags
+    // Si el filtro es Red flags, muestra solo los que tienen red >= green
     if (activeFilter === 'Red flags') return matchesSearch && post.redFlags >= post.greenFlags
+    // Para los otros filtros, muestra todos los que coincidan con la busqueda
     return matchesSearch
   })
 
+  // Calcula los chicos con mas green flags
   const topGreen = getTopByGreen(posts)
+  // Calcula los chicos con mas red flags
   const topRed = getTopByRed(posts)
 
+  // Navega al perfil de la usuaria que publico la resena
+  // Si es el perfil propio, va a /profile, sino va al perfil con su ID
   const handleUsernameClick = (postUserId: string) => {
     if (postUserId === auth?.profile?.id) {
       navigate('/profile')
@@ -38,8 +47,11 @@ export const MenReview = () => {
     }
   }
 
+  // Elimina la resena tras pedir confirmacion
   const handleDelete = async (id: string) => {
+    // Solicita confirmacion antes de borrar
     if (!window.confirm('Delete this review?')) return
+    // Elimina la resena del contexto
     await deletePost(id)
   }
 

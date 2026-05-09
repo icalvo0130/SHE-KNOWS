@@ -18,12 +18,18 @@ export const ProductCard = ({ post, onComment, onDelete }: ProductCardProps) => 
   const [showComments, setShowComments] = useState(false)
   const [commentText, setCommentText] = useState('')
 
+  // Envia el comentario si tiene contenido y limpia el campo
   const handleComment = async () => {
+    // Si el comentario esta vacio, no hace nada
     if (!commentText.trim()) return
+    // Envía el comentario al contexto
     await onComment(post.id, commentText.trim())
+    // Limpia el campo de texto
     setCommentText('')
   }
 
+  // Navega al perfil de la usuaria que publico la resena
+  // Si es el perfil propio, va a /profile, sino va al perfil con su ID
   const handleUsernameClick = () => {
     if (post.user_id === auth?.profile?.id) {
       navigate('/profile')
@@ -32,11 +38,15 @@ export const ProductCard = ({ post, onComment, onDelete }: ProductCardProps) => 
     }
   }
 
+  // Elimina la resena tras pedir confirmacion
   const handleDelete = async () => {
+    // Solicita confirmacion antes de borrar
     if (!window.confirm('Delete this product review?')) return
+    // Elimina la resena del contexto
     await onDelete(post.id)
   }
 
+  // Verifica si la usuaria actual es dueña de la resena
   const isOwner = post.user_id === auth?.profile?.id
 
   return (

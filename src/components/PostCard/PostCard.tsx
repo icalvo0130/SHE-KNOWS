@@ -18,13 +18,18 @@ export const PostCard = ({ post, onLike, onComment, onDelete }: PostCardProps) =
   const [showComments, setShowComments] = useState(false)
   const [commentText, setCommentText] = useState('')
 
+  // Envia el comentario si tiene contenido y limpia el campo
   const handleSendComment = async () => {
+    // Si el comentario esta vacio, no hace nada
     if (!commentText.trim()) return
+    // Envía el comentario al contexto
     await onComment(post.id, commentText.trim())
+    // Limpia el campo de texto
     setCommentText('')
   }
 
   // Navega al perfil de la usuaria que hizo el post
+  // Si es el perfil propio, va a /profile, sino va al perfil con su ID
   const handleUsernameClick = () => {
     if (post.user_id === auth?.profile?.id) {
       navigate('/profile')
@@ -33,11 +38,15 @@ export const PostCard = ({ post, onLike, onComment, onDelete }: PostCardProps) =
     }
   }
 
+  // Elimina el post tras pedir confirmacion
   const handleDelete = async () => {
+    // Solicita confirmacion antes de borrar
     if (!window.confirm('Delete this post?')) return
+    // Elimina el post del contexto
     await onDelete(post.id)
   }
 
+  // Verifica si la usuaria actual es dueña del post
   const isOwner = post.user_id === auth?.profile?.id
 
   return (
