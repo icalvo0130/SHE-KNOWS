@@ -132,3 +132,10 @@
     display: block;
   }
 }
+
+@media (max-width: 767px) {
+  .girl-talk__posts {
+    border-left: none;
+    border-right: none;
+  }
+}

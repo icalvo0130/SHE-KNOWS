@@ -276,3 +276,10 @@
   color: #e53935;
   background: rgba(229, 57, 53, 0.08);
 }
+
+@media (max-width: 767px) {
+  .men-review__feed {
+    border-left: none;
+    border-right: none;
+  }
+}
