@@ -1,5 +1,3 @@
-
-
 .girl-talk {
   max-width: 1200px;
   margin: 0 auto;
@@ -81,13 +79,12 @@
   cursor: not-allowed;
 }
 
+/* Solo bordes laterales — las cards crean la separación horizontal con su border-bottom */
 .girl-talk__posts {
   background: var(--blanco);
   border-left: 1px solid var(--gris-borde);
   border-right: 1px solid var(--gris-borde);
-  border-radius: 0;
   overflow: hidden;
-  box-shadow: none;
 }
 
 /* Right sidebar — desktop only */
@@ -133,6 +130,7 @@
   }
 }
 
+/* Mobile: sin bordes laterales, sin bordes extra */
 @media (max-width: 767px) {
   .girl-talk__posts {
     border-left: none;

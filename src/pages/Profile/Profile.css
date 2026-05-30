@@ -277,5 +277,66 @@
     border-left: none;
     border-right: none;
   }
-}
 
+  /* Header area mobile: sin fondo rojo, limpio */
+  .profile__header-area {
+    background: var(--blanco);
+    padding: 24px 20px 16px 20px;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+
+  .profile__back-btn {
+    align-self: flex-start;
+    color: var(--negro);
+    margin-bottom: 16px;
+  }
+
+  .profile__logout {
+    position: absolute;
+    top: 24px;
+    right: 20px;
+    color: var(--rojo);
+    font-size: 0.85rem;
+  }
+
+  .profile__user-info-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .profile__avatar {
+    width: 100px;
+    height: 100px;
+  }
+
+  .profile__avatar:not(img) {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: #fedbc7;
+  }
+
+  /* Username centrado debajo del avatar */
+  .profile__username {
+    font-size: 1.4rem;
+    text-align: center;
+  }
+
+  /* El username-mobile se oculta — usamos el normal centrado */
+  .profile__username-mobile {
+    display: none;
+  }
+
+  .profile__tabs {
+    padding: 0 8px;
+    justify-content: space-around;
+  }
+
+  .profile__tab {
+    font-size: 0.85rem;
+    padding: 14px 8px;
+  }
+}

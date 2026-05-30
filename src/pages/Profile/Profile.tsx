@@ -104,8 +104,9 @@ export const Profile = () => {
             )}
           </div>
 
-          <div className="profile__tabs">
-            {TABS.map((tab) => (
+          {/* Username para mobile — aparece debajo del header rojo, encima de los tabs */}
+
+          <div className="profile__tabs">            {TABS.map((tab) => (
               <button
                 key={tab}
                 className={`profile__tab ${activeTab === tab ? 'active' : ''}`}

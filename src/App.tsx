@@ -32,7 +32,7 @@ function App() {
       <GirlTalkProvider>
         <MenReviewProvider>
           <ProductsProvider>
-            <div className="app">
+            <div className={`app${isAuthPage ? ' app--auth' : ''}`}>
               {/* Muestra el header solo si no estamos en una pagina de autenticacion */}
               {!isAuthPage && <Header />}
               {/* Muestra la barra de navegacion solo si no estamos en una pagina de autenticacion */}

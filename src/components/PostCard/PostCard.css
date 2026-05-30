@@ -15,6 +15,7 @@
   height: 44px;
   border-radius: 50%;
   flex-shrink: 0;
+  background: var(--gris-claro);
 }
 
 .post-card__info {
@@ -46,7 +47,7 @@
   padding: 12px 0 14px 0;
 }
 
-.post-card__action-btn {
+.post-card__action {
   display: flex;
   align-items: center;
   gap: 5px;
@@ -57,91 +58,55 @@
   cursor: pointer;
   font-family: var(--font-body);
   transition: color 0.15s ease;
+  text-decoration: none;
 }
 
-.post-card__action-btn:hover {
+.post-card__action:hover {
   color: var(--rojo);
 }
 
-.post-card__action-btn.liked {
+.post-card__action.liked {
   color: var(--rojo);
 }
 
-.post-card__action-btn svg {
+.post-card__action svg {
   width: 18px;
   height: 18px;
 }
 
-/* Comments section */
-.post-card__comments {.post-card {
-  padding: 20px 16px 0 16px;
-  border-bottom: 1px solid var(--gris-borde);
-  background: var(--blanco);
-}
-
-.post-card__header {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.post-card__avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.post-card__info {
-  flex: 1;
-}
-
-.post-card__username {
+/* Username clickable como boton invisible */
+.post-card__username-btn {
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--negro);
-  margin-bottom: 4px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--font-body);
+  text-decoration: none;
+}
+.post-card__username-btn:hover {
+  color: var(--rojo);
+  text-decoration: underline;
 }
 
-.post-card__text {
-  font-size: 0.9rem;
-  line-height: 1.5;
-  color: #333;
-}
-
-/* Actions row */
-.post-card__actions {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 20px;
-  padding: 12px 0 14px 0;
-}
-
-.post-card__action-btn {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.85rem;
-  color: #777;
+/* Boton de eliminar — solo visible para la autora */
+.post-card__delete-btn {
+  margin-left: auto;
   background: none;
   border: none;
   cursor: pointer;
-  font-family: var(--font-body);
-  transition: color 0.15s ease;
+  color: #bbb;
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
 }
-
-.post-card__action-btn:hover {
-  color: var(--rojo);
-}
-
-.post-card__action-btn.liked {
-  color: var(--rojo);
-}
-
-.post-card__action-btn svg {
-  width: 18px;
-  height: 18px;
+.post-card__delete-btn:hover {
+  color: #e53935;
+  background: #ffeaea;
 }
 
 /* Comments section */
@@ -164,6 +129,7 @@
   height: 28px;
   border-radius: 50%;
   flex-shrink: 0;
+  background: var(--gris-claro);
 }
 
 .post-card__comment-body {
@@ -208,131 +174,21 @@
   border-color: var(--rosado);
 }
 
-.post-card__comment-input button {
+.post-card__comment-send {
   background: var(--fucsia);
   color: var(--blanco);
   border: none;
-  border-radius: 20px;
-  padding: 8px 14px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: var(--font-body);
-  transition: background 0.15s ease;
-}
-
-.post-card__comment-input button:hover {
-  background: var(--rojo);
-}
-/* Username clickable como boton invisible */
-.post-card__username-btn {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--negro);
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  font-family: var(--font-body);
-}
-.post-card__username-btn:hover {
-  color: var(--rosa-fuerte, #e91e8c);
-  text-decoration: underline;
-}
-
-/* Boton de eliminar — solo visible para la autora */
-.post-card__delete-btn {
-  margin-left: auto;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #bbb;
-  padding: 2px 4px;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
-  border-radius: 4px;
-  transition: color 0.15s, background 0.15s;
-}
-.post-card__delete-btn:hover {
-  color: #e53935;
-  background: #ffeaea;
-}
-
-  border-top: 1px solid var(--gris-borde);
-  padding: 12px 0 16px 56px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.post-card__comment {
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
-}
-
-.post-card__comment-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease;
   flex-shrink: 0;
 }
 
-.post-card__comment-body {
-  background: var(--gris-claro);
-  border-radius: 12px;
-  padding: 6px 12px;
-  font-size: 0.82rem;
-  line-height: 1.45;
-}
-
-.post-card__comment-username {
-  font-weight: 600;
-  color: var(--negro);
-  margin-bottom: 2px;
-}
-
-.post-card__comment-text {
-  color: #444;
-}
-
-/* Comment input */
-.post-card__comment-input {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  padding-left: 56px;
-  padding-bottom: 16px;
-}
-
-.post-card__comment-input input {
-  flex: 1;
-  border: 1px solid var(--gris-borde);
-  border-radius: 20px;
-  padding: 8px 16px;
-  font-size: 0.85rem;
-  font-family: var(--font-body);
-  outline: none;
-  transition: border-color 0.15s ease;
-}
-
-.post-card__comment-input input:focus {
-  border-color: var(--rosado);
-}
-
-.post-card__comment-input button {
-  background: var(--fucsia);
-  color: var(--blanco);
-  border: none;
-  border-radius: 20px;
-  padding: 8px 14px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: var(--font-body);
-  transition: background 0.15s ease;
-}
-
-.post-card__comment-input button:hover {
+.post-card__comment-send:hover {
   background: var(--rojo);
 }

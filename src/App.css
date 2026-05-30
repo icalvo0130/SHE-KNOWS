@@ -22,9 +22,13 @@
 @media (min-width: 768px) {
   .app {
     flex-direction: row;
+    position: relative;
+  }
+
+  /* Solo las páginas de auth tienen el .app sin max-width para ocupar toda la pantalla */
+  .app:not(.app--auth) {
     max-width: 1200px;
     margin: 0 auto;
-    position: relative;
   }
 
   .app__main {

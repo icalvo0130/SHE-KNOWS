@@ -59,6 +59,19 @@ export const MenReview = () => {
     <div className="men-review">
       <div className="men-review__layout">
         <div className="men-review__feed">
+          {/* Barra de búsqueda — solo visible en mobile (en desktop está en el sidebar) */}
+          <div className="men-review__search-bar men-review__search-bar--mobile">
+            <div className="men-review__search-input-wrap">
+              <input
+                type="text"
+                placeholder="Search a man"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <Search size={20} />
+            </div>
+          </div>
+
           <div className="men-review__filters">
             {FILTERS.map((filter) => (
               <button
