@@ -1,157 +1,144 @@
 # She Knows
 
-She Knows is a private, women-centered web platform designed for university students to share experiences, ask for advice, and support each other — anonymously and without judgment.
-
-It creates a safe digital space where real conversations happen, real opinions matter, and collective knowledge protects and empowers women.
+> A private, women-centered web platform where university students can share experiences, ask for advice, review products, and protect each other — anonymously and without judgment.
 
 ---
 
-## The Problem
+## Overview
 
-Many women don’t have a safe space to talk openly about their experiences.
+She Knows is a community-driven Single Page Application (SPA) built for university women. It provides a trusted digital space where real conversations happen, real opinions matter, and collective knowledge empowers its users.
 
-- Not everyone has close female friendships to share personal topics  
-- Conversations about dating, emotions, or insecurities often feel uncomfortable or judged  
-- Beauty recommendations are heavily influenced by paid promotions  
-- Information about men and dating experiences is scattered and unreliable  
+The platform exists because many women lack a safe, non-judgmental environment to talk openly about dating, relationships, beauty, and personal experiences. Paid promotions distort product recommendations, and information about men and dating is scattered and unreliable.
 
-As a result, women navigate important decisions alone — or based on filtered, unrealistic information.
+She Knows brings everything into one place: anonymous conversations, honest product reviews beyond influencer culture, and a shared safety layer for navigating relationships. Access is restricted to institutional email addresses to ensure a trusted, bounded community.
 
 ---
 
-## The Solution
+## Current Scope
 
-She Knows brings everything into one trusted space:
+### Features
 
-- Anonymous conversations without fear of judgment  
-- Real experiences shared by real women  
-- Collective insights about dating and relationships  
-- Honest product reviews beyond influencer culture  
+* **Girl Talk** — Anonymous feed where users can post thoughts, experiences, or questions and interact through likes and comments
+* **Men Under Review** — Users can post experiences about men with a red/green flag voting system, searchable by name
+* **Products We Trust** — Community-driven product reviews (makeup, skincare, gym, clothing) with star ratings, category feeds, weekly top-rated filter, and trending products
+* **Anonymous Profiles** — Auto-generated usernames and avatars on registration; no real names or photos required
+* **User Profiles** — Personal profile page showing own posts; ability to view other users' profiles by ID
+* **Protected Routes** — All core sections are inaccessible without an active session
 
-It’s not just a platform — it’s a community built on trust, anonymity, and shared knowledge.
+### Status
 
----
-
-## Core Features
-
-### Girl Talk
-
-An open, anonymous space where users can:
-
-- Share thoughts, experiences, or questions  
-- Ask for advice on any topic  
-- Interact through likes and comments  
-
-A space to say things you wouldn’t say anywhere else.
+> The repository has completed its core architecture and all primary features. The platform currently uses open Row Level Security policies suitable for academic development. Production hardening (per-user RLS, email domain validation enforcement) is scoped for future iterations.
 
 ---
 
-### Men Under Review
+## Architecture
 
-A safety-focused feature where users can:
+### Responsibilities
 
-- Post experiences about men (name, photo, description)  
-- Mark them as Red Flag or Green Flag  
-- Search for a person before dating them  
+* Authenticate users via Firebase and persist session state globally through `AuthContext`
+* Auto-generate an anonymous profile (username + DiceBear avatar) in Supabase on first login
+* Provide isolated feature Contexts (`GirlTalkContext`, `MenReviewContext`, `ProductsContext`) that handle all data fetching, mutations, and local state for each section
+* Protect all non-auth routes via `ProtectedRoute`, redirecting unauthenticated users to `/login`
+* Serve images uploaded by users (product photos, men review photos) through Supabase Storage buckets
+* Calculate trending products client-side using `useMemo` over the loaded posts state, without additional database queries
 
-Built to protect, inform, and reduce risk through shared experiences.
+### Integrations
 
----
-
-### Beauty Reviews
-
-A community-driven review system where users can:
-
-- Review products (makeup, skincare, gym, clothing)  
-- Rate with stars and detailed opinions  
-- Comment and rate other reviews  
-- Explore top-rated products by category  
-
-Includes:
-
-- Smart product suggestions using an external API  
-- Weekly top-rated products  
-- Honest, non-sponsored opinions  
-
-Real reviews, no influencer bias.
-
----
-
-## Anonymous Profiles
-
-- No personal identity (no names, no real photos)  
-- Users can still view each other’s posts  
-- Helps detect suspicious or biased behavior  
-
-Privacy without losing accountability.
-
----
-
-## Target Audience
-
-- University women  
-- Students navigating dating, self-image, and social pressure  
-- Women looking for honest opinions and safe conversations  
-
-Access is restricted to institutional emails to ensure a trusted community.
+* **Firebase Authentication** — Email/password auth, session persistence, `onAuthStateChanged` listener
+* **Supabase** — PostgreSQL database (posts, likes, comments, votes, profiles), SQL views for aggregated feeds, Storage buckets for user-uploaded images
+* **DiceBear API** — Generates unique SVG avatars per user via randomized seed URLs
 
 ---
 
 ## Tech Stack
 
-- React  
-- TypeScript  
-- Vite  
-- React Router  
-- Firebase (authentication & database)  
-- Supabase (image storage)  
-- Makeup API (product suggestions)  
+| Category       | Technologies                                        |
+| -------------- | --------------------------------------------------- |
+| Core           | React 19, TypeScript 5.9, Vite 8                    |
+| Routing        | React Router DOM 7                                  |
+| Auth           | Firebase 12                                         |
+| Database       | Supabase JS 2 (PostgreSQL + Storage)                |
+| State          | React Context API (`useContext`)                     |
+| Icons          | Lucide React                                        |
+| Tooling        | ESLint 9, typescript-eslint                         |
+
+> See `package.json` for exact versions.
 
 ---
 
-## Installation
+## Getting Started
 
-Clone the repository:
+### Prerequisites
 
-    git clone https://github.com/icalvo0130/SHE-KNOWS
+* Node.js 22+
+* npm
 
-Install dependencies:
+### Installation
 
-    npm install
+```bash
+git clone https://github.com/icalvo0130/SHE-KNOWS
+cd SHE-KNOWS
+npm install
+```
 
-Run locally:
+### Run Locally
 
-    npm run dev
-
----
-
-## Design & Experience
-
-She Knows was built with a strong focus on:
-
-- Emotional safety  
-- Anonymity without toxicity  
-- Clean and expressive UI  
-- Community-driven interaction  
-- Female-centered digital experience  
+```bash
+npm run dev
+```
 
 ---
 
-## Project Status
+## Environment Variables
 
-Currently in active development as part of an academic web project.
+Create a `.env` file at the root of the project with the following variables:
 
-Core features are implemented, with ongoing improvements in:
+```env
+VITE_SUPABASE_URL=
+VITE_SUPABASE_PUBLISHABLE_KEY=
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_STORAGE_BUCKET=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_APP_ID=
+```
 
-- Data persistence  
-- API integrations  
-- User experience and interactions  
+Contact the maintainers for environment-specific values. Do not commit `.env` to version control.
 
 ---
 
-## Final Note
+## Available Scripts
 
-She Knows is more than a platform —  
-it’s a space where women can finally say:
+| Command           | Description                              |
+| ----------------- | ---------------------------------------- |
+| `npm run dev`     | Start development server (Vite)          |
+| `npm run build`   | Type-check and create production build   |
+| `npm run preview` | Preview the production build locally     |
+| `npm run lint`    | Run ESLint across the project            |
 
-“I’m not the only one.”
+---
+
+## Project Structure
+
+```text
+src/
+├── assets/          # Images and static resources
+├── components/      # Reusable UI elements (PostCard, NavBar, Header, Forms, ProductCard)
+├── context/         # Global state providers (AuthContext, GirlTalkContext, MenReviewContext, ProductsContext)
+├── data/            # External service configuration (firebase.ts, supabase.ts)
+├── pages/           # Full-screen route components (GirlTalk, MenReview, Products, Profile, Login, Register, Welcome)
+├── routes/          # ProtectedRoute component
+├── types/           # Centralized TypeScript type definitions (Post.ts, Auth.ts, Helpers.ts)
+└── main.tsx         # Application entry point
+```
+
+---
+
+## Ownership
+
+**Team:** She Knows — Academic Web Development Project
+
+**Maintainers:**
+* Isabela Calvo — [@icalvo0130](https://github.com/icalvo0130)
+* Nicole Dayan Miranda
